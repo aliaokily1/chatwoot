@@ -12,9 +12,10 @@ permissions:
   contents: read
   packages: write
 
+# New pushes wait for the running build instead of cancelling it.
 concurrency:
   group: elkheta-image
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
