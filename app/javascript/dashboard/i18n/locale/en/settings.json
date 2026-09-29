@@ -317,7 +317,7 @@
     "ALL_CONVERSATIONS": "All Conversations",
     "MENTIONED_CONVERSATIONS": "Mentions",
     "PARTICIPATING_CONVERSATIONS": "Participating",
-    "UNATTENDED_CONVERSATIONS": "Unattended",
+    "UNATTENDED_CONVERSATIONS": "Awaiting reply",
     "UNREAD_CONVERSATIONS": "Unread",
     "REPORTS": "Reports",
     "SETTINGS": "Settings",

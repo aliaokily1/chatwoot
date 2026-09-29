@@ -1,6 +1,11 @@
 import { required, minLength } from '@vuelidate/validators';
 
-export const validLabelCharacters = (str = '') => !!str && !str.includes(' ');
+// Elkheta: spaces are allowed while typing; they become "_" when the label is saved
+// ("At Risk" → "at_risk"), since the server only accepts letters, numbers, "_" and "-".
+export const normalizeLabelTitle = (str = '') =>
+  str.trim().replace(/\s+/g, '_').toLowerCase();
+
+export const validLabelCharacters = (str = '') => !!str && !!str.trim();
 
 export const getLabelTitleErrorMessage = validation => {
   let errorMessage = '';

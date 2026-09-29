@@ -1,7 +1,10 @@
 <script>
 import { mapGetters } from 'vuex';
 import { useAlert } from 'dashboard/composables';
-import validations, { getLabelTitleErrorMessage } from './validations';
+import validations, {
+  getLabelTitleErrorMessage,
+  normalizeLabelTitle,
+} from './validations';
 import { getRandomColor } from 'dashboard/helper/labelColor';
 import { useVuelidate } from '@vuelidate/core';
 
@@ -52,7 +55,7 @@ export default {
         await this.$store.dispatch('labels/create', {
           color: this.color,
           description: this.description,
-          title: this.title.toLowerCase(),
+          title: normalizeLabelTitle(this.title),
           show_on_sidebar: this.showOnSidebar,
         });
         useAlert(this.$t('LABEL_MGMT.ADD.API.SUCCESS_MESSAGE'));

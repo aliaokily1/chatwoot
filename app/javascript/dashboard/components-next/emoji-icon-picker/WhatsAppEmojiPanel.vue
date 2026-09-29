@@ -1,6 +1,6 @@
 <script setup>
 // Elkheta: WhatsApp-style emoji panel — opens above the composer, category tabs,
-// search, modern Fluent 3D emoji (MIT, Microsoft) with native-text fallback,
+// search, Google Noto Color Emoji (same look as in messages),
 // and bottom tabs for Emoji / GIF / Stickers.
 import { computed, nextTick, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -14,9 +14,6 @@ import {
 const emit = defineEmits(['select']);
 
 const { t } = useI18n();
-
-const FLUENT_CDN =
-  'https://cdn.jsdelivr.net/npm/@lobehub/fluent-emoji-3d@1.1.0/assets';
 
 const CATEGORY_META = {
   'Smileys & Emotion': { key: 'SMILEYS', icon: 'i-ph-smiley' },
@@ -82,32 +79,6 @@ const sections = computed(() => {
     })),
   ];
 });
-
-// "😀" → "1f600", "❤️" → "2764-fe0f"
-const toCode = emoji =>
-  [...emoji].map(char => char.codePointAt(0).toString(16)).join('-');
-
-const imageCandidates = emoji => {
-  const full = toCode(emoji);
-  const withoutVs = full.replace(/-fe0f/g, '');
-  const withVs = full.includes('fe0f') ? full : `${full}-fe0f`;
-  return [...new Set([full, withoutVs, withVs])].map(
-    code => `${FLUENT_CDN}/${code}.webp`
-  );
-};
-
-// Try the next filename variant; after the last one, fall back to the native glyph.
-const onImageError = event => {
-  const img = event.target;
-  const candidates = img.dataset.candidates.split('|');
-  const next = Number(img.dataset.attempt || 0) + 1;
-  if (next < candidates.length) {
-    img.dataset.attempt = String(next);
-    img.src = candidates[next];
-  } else {
-    img.replaceWith(document.createTextNode(img.alt));
-  }
-};
 
 const selectEmoji = emoji => {
   recentEmojis.value = addRecentEmoji(emoji);
@@ -199,15 +170,7 @@ const onScroll = () => {
               class="grid place-content-center h-10 rounded-lg border-0 bg-transparent cursor-pointer hover:bg-n-alpha-2 text-2xl leading-none"
               @click="selectEmoji(emoji)"
             >
-              <img
-                :src="imageCandidates(emoji.emoji)[0]"
-                :data-candidates="imageCandidates(emoji.emoji).join('|')"
-                :alt="emoji.emoji"
-                loading="lazy"
-                draggable="false"
-                class="size-7 select-none"
-                @error="onImageError"
-              />
+              <span class="wa-emoji-glyph select-none">{{ emoji.emoji }}</span>
             </button>
           </div>
           <p
@@ -217,6 +180,7 @@ const onScroll = () => {
             {{ t('CONVERSATION.EMOJI_PANEL.NO_RESULTS') }}
           </p>
         </template>
+
       </div>
     </template>
 
@@ -262,3 +226,11 @@ const onScroll = () => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.wa-emoji-glyph {
+  font-family: 'Noto Color Emoji', sans-serif;
+  font-size: 1.625rem;
+  line-height: 1;
+}
+</style>

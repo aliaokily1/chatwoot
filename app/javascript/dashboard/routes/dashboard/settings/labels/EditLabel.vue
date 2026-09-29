@@ -1,7 +1,10 @@
 <script>
 import { mapGetters } from 'vuex';
 import { useAlert } from 'dashboard/composables';
-import validations, { getLabelTitleErrorMessage } from './validations';
+import validations, {
+  getLabelTitleErrorMessage,
+  normalizeLabelTitle,
+} from './validations';
 import { useVuelidate } from '@vuelidate/core';
 
 import NextButton from 'dashboard/components-next/button/Button.vue';
@@ -62,7 +65,7 @@ export default {
           id: this.selectedResponse.id,
           color: this.color,
           description: this.description,
-          title: this.title.toLowerCase(),
+          title: normalizeLabelTitle(this.title),
           show_on_sidebar: this.showOnSidebar,
         })
         .then(() => {
