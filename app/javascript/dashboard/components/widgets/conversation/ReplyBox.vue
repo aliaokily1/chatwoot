@@ -62,6 +62,11 @@ const EmojiIconPicker = defineAsyncComponent(
   () =>
     import('dashboard/components-next/emoji-icon-picker/EmojiIconPicker.vue')
 );
+// Elkheta: WhatsApp-style emoji panel above the composer
+const WhatsAppEmojiPanel = defineAsyncComponent(
+  () =>
+    import('dashboard/components-next/emoji-icon-picker/WhatsAppEmojiPanel.vue')
+);
 
 export default {
   components: {
@@ -70,6 +75,7 @@ export default {
     AudioRecorder,
     ReplyBoxBanner,
     EmojiIconPicker,
+    WhatsAppEmojiPanel,
     MessageSignatureMissingAlert,
     ReplyBottomPanel,
     ReplyEmailHead,
@@ -1281,6 +1287,11 @@ export default {
       @toggle-copilot="copilot.toggleEditor"
       @execute-copilot-action="executeCopilotAction"
     />
+    <WhatsAppEmojiPanel
+      v-if="showEmojiPicker"
+      v-on-clickaway="hideEmojiPicker"
+      @select="addIntoEditor($event.value)"
+    />
     <ArticleSearchPopover
       v-if="showArticleSearchPopover && connectedPortalSlug"
       :selected-portal-slug="connectedPortalSlug"
@@ -1301,16 +1312,6 @@ export default {
           v-if="shouldShowReplyToMessage"
           :message="inReplyTo"
           @dismiss="resetReplyToMessage"
-        />
-        <EmojiIconPicker
-          v-if="showEmojiPicker"
-          v-on-clickaway="hideEmojiPicker"
-          mode="emoji"
-          class="emoji-dialog"
-          :class="{
-            'emoji-dialog--expanded': isOnExpandedLayout,
-          }"
-          @select="addIntoEditor($event.value)"
         />
         <ReplyEmailHead
           v-if="showReplyHead && isDefaultEditorMode"

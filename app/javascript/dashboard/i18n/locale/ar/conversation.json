@@ -73,6 +73,24 @@
     "FEEDBACK_TITLE": "الملاحظات",
     "REPLY_MESSAGE_NOT_FOUND": "الرسالة غير متوفرة",
     "REPLY_YOU": "أنت",
+    "EMOJI_PANEL": {
+      "SEARCH": "ابحث عن إيموجي",
+      "RECENT": "المستخدمة مؤخراً",
+      "NO_RESULTS": "مفيش إيموجي بالاسم ده",
+      "GIF_SOON": "الـ GIF قريباً.",
+      "STICKERS_SOON": "الاستيكرز قريباً — مكتبة الاستيكرز هتظهر هنا.",
+      "CATEGORIES": {
+        "SMILEYS": "الوجوه والمشاعر",
+        "PEOPLE": "الناس والجسم",
+        "ANIMALS": "الحيوانات والطبيعة",
+        "FOOD": "الأكل والشرب",
+        "TRAVEL": "السفر والأماكن",
+        "ACTIVITIES": "الأنشطة",
+        "OBJECTS": "الأشياء",
+        "SYMBOLS": "الرموز",
+        "FLAGS": "الأعلام"
+      }
+    },
     "CARD": {
       "SHOW_LABELS": "إظهار السمات",
       "HIDE_LABELS": "إخفاء السمات",
