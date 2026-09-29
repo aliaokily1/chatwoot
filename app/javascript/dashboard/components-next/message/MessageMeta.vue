@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue';
+import { fromUnixTime, isToday } from 'date-fns';
 import { messageTimestamp } from 'shared/helpers/timeHelper';
 
 import MessageStatus from './MessageStatus.vue';
@@ -32,8 +33,15 @@ const {
   contentAttributes,
 } = useMessageContext();
 
-const readableTime = computed(() =>
+const fullTime = computed(() =>
   messageTimestamp(createdAt.value, 'LLL d, h:mm a')
+);
+
+// Elkheta: like WhatsApp, only the time for today's messages (full date on hover)
+const readableTime = computed(() =>
+  isToday(fromUnixTime(createdAt.value))
+    ? messageTimestamp(createdAt.value, 'h:mm a')
+    : fullTime.value
 );
 
 const showStatusIndicator = computed(() => {
@@ -134,7 +142,7 @@ const statusToShow = computed(() => {
 <template>
   <div class="text-xs flex items-center gap-1.5">
     <div class="inline">
-      <time class="inline">{{ readableTime }}</time>
+      <time class="inline" :title="fullTime">{{ readableTime }}</time>
     </div>
     <Icon v-if="isPrivate" icon="i-lucide-lock-keyhole" class="size-3" />
     <MessageStatus v-if="showStatusIndicator" :status="statusToShow" />

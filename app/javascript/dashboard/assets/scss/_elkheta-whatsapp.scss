@@ -1,0 +1,84 @@
+// Elkheta: WhatsApp-style chat look. Follows Chatwoot's Light / Dark theme (`.dark` on <html>).
+// Colors are exposed to Tailwind as `n-wa-*` (see theme/colors.js).
+
+@layer base {
+  :root {
+    --wa-chat-bg: 239 234 226; // #EFEAE2
+    --wa-bubble-out: 217 253 211; // #D9FDD3
+    --wa-bubble-in: 255 255 255; // #FFFFFF
+    --wa-text: 17 27 33; // #111B21
+    --wa-meta: 102 119 129; // #667781
+    --wa-meta-out: 102 119 129; // #667781
+    --wa-accent: 0 168 132; // #00A884
+    --wa-read: 83 189 235; // #53BDEB
+    --wa-panel: 240 242 245; // #F0F2F5
+    --wa-quote: 0 0 0; // used with low alpha
+  }
+
+  .dark {
+    --wa-chat-bg: 11 20 26; // #0B141A
+    --wa-bubble-out: 0 92 75; // #005C4B
+    --wa-bubble-in: 32 44 51; // #202C33
+    --wa-text: 233 237 239; // #E9EDEF
+    --wa-meta: 134 150 160; // #8696A0
+    --wa-meta-out: 175 205 198; // ~ #FFFFFF99 on #005C4B
+    --wa-accent: 0 168 132; // #00A884
+    --wa-read: 83 189 235; // #53BDEB
+    --wa-panel: 32 44 51; // #202C33
+    --wa-quote: 0 0 0;
+  }
+}
+
+// Original doodle wallpaper (study theme), drawn for Elkheta — not WhatsApp's artwork.
+$wa-doodle-paths: "<g fill='none' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.6'><path d='M20 30q12-6 24 0v24q-12-6-24 0z M44 30q12-6 24 0v24q-12-6-24 0z'/><path d='M112 58l6-18 26-26 12 12-26 26z M118 40l12 12'/><path d='M170 71l4 9 10 1-8 6 3 10-9-6-9 6 3-10-8-6 10-1z'/><path d='M40 128c-12-8-16-14-16-20a8 8 0 0 1 16-2 8 8 0 0 1 16 2c0 6-4 12-16 20z'/><path d='M94 96h30a6 6 0 0 1 6 6v16a6 6 0 0 1-6 6h-24l-10 8v-8a6 6 0 0 1-2-6v-16a6 6 0 0 1 6-6z'/><path d='M160 150a14 14 0 1 1 16 0v6h-16z M162 162h12'/><path d='M20 170l24-10 24 10-24 10z M30 174v10q14 8 28 0v-10'/><path d='M100 172l40-14-12 36-8-14z M120 180l8-22'/><circle cx='80' cy='70' r='2'/><circle cx='150' cy='110' r='2'/><circle cx='70' cy='150' r='2'/><circle cx='185' cy='185' r='2'/></g>";
+
+$wa-doodle-light: "<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' stroke='%235b5048' stroke-opacity='0.09'>#{$wa-doodle-paths}</svg>";
+$wa-doodle-dark: "<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' stroke='%23ffffff' stroke-opacity='0.05'>#{$wa-doodle-paths}</svg>";
+
+.conversation-panel.wa-chat-bg {
+  background-color: rgb(var(--wa-chat-bg));
+  background-image: url("data:image/svg+xml,#{$wa-doodle-light}");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+}
+
+.dark .conversation-panel.wa-chat-bg {
+  background-image: url("data:image/svg+xml,#{$wa-doodle-dark}");
+}
+
+// Bubble tail on the first message of a group (like WhatsApp).
+.wa-bubble {
+  position: relative;
+  box-shadow: 0 1px 0.5px rgb(11 20 26 / 0.13);
+}
+
+.wa-bubble.wa-tail::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 8px;
+  height: 13px;
+  background-color: inherit;
+}
+
+.wa-bubble.wa-out.wa-tail::before {
+  right: -8px;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+.wa-bubble.wa-in.wa-tail::before {
+  left: -8px;
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+[dir='rtl'] .wa-bubble.wa-out.wa-tail::before {
+  right: auto;
+  left: -8px;
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+[dir='rtl'] .wa-bubble.wa-in.wa-tail::before {
+  left: auto;
+  right: -8px;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}

@@ -84,6 +84,7 @@ const MessageControl = Symbol('MessageControl');
  * @property {import('vue').Ref<number>} id - The unique identifier for the message
  * @property {import('vue').Ref<number>} inboxId - The ID of the inbox to which the message belongs
  * @property {import('vue').Ref<boolean>} [groupWithNext=false] - Whether the message should be grouped with the next message
+ * @property {import('vue').Ref<boolean>} [groupWithPrevious=false] - Whether the message is grouped with the previous message
  * @property {import('vue').Ref<boolean>} [isEmailInbox=false] - Whether the message is from an email inbox
  * @property {import('vue').Ref<boolean>} [private=false] - Whether the message is private
  * @property {import('vue').Ref<number|null>} [senderId=null] - The ID of the sender

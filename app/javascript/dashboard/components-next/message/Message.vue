@@ -94,6 +94,7 @@ import { useBranding } from 'shared/composables/useBranding';
  * @property {string|null} [senderType=null] - The type of the sender
  * @property {string} content - The message content
  * @property {boolean} [groupWithNext=false] - Whether the message should be grouped with the next message
+ * @property {boolean} [groupWithPrevious=false] - Whether the message is grouped with the previous message (Elkheta: WhatsApp bubble tail)
  * @property {Object|null} [inReplyTo=null] - The message to which this message is a reply
  * @property {boolean} [isEmailInbox=false] - Whether the message is from an email inbox
  * @property {number} conversationId - The ID of the conversation to which the message belongs
@@ -126,6 +127,7 @@ const props = defineProps({
   createdAt: { type: Number, required: true }, // eslint-disable-line vue/no-unused-properties
   currentUserId: { type: Number, required: true }, // eslint-disable-line vue/no-unused-properties
   groupWithNext: { type: Boolean, default: false },
+  groupWithPrevious: { type: Boolean, default: false }, // eslint-disable-line vue/no-unused-properties
   inboxId: { type: Number, default: null }, // eslint-disable-line vue/no-unused-properties
   inboxSupportsReplyTo: { type: Object, default: () => ({}) },
   inReplyTo: { type: Object, default: null }, // eslint-disable-line vue/no-unused-properties

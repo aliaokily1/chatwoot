@@ -105,6 +105,19 @@ export const colors = {
 
   // next design system color
   n: {
+    // Elkheta: WhatsApp-style chat colors (values in _elkheta-whatsapp.scss)
+    wa: {
+      chat: 'rgb(var(--wa-chat-bg) / <alpha-value>)',
+      out: 'rgb(var(--wa-bubble-out) / <alpha-value>)',
+      in: 'rgb(var(--wa-bubble-in) / <alpha-value>)',
+      text: 'rgb(var(--wa-text) / <alpha-value>)',
+      meta: 'rgb(var(--wa-meta) / <alpha-value>)',
+      'meta-out': 'rgb(var(--wa-meta-out) / <alpha-value>)',
+      accent: 'rgb(var(--wa-accent) / <alpha-value>)',
+      read: 'rgb(var(--wa-read) / <alpha-value>)',
+      panel: 'rgb(var(--wa-panel) / <alpha-value>)',
+      quote: 'rgb(var(--wa-quote) / <alpha-value>)',
+    },
     slate: {
       1: 'rgb(var(--slate-1) / <alpha-value>)',
       2: 'rgb(var(--slate-2) / <alpha-value>)',

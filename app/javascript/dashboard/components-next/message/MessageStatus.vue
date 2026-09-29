@@ -56,9 +56,9 @@ const statusIcon = computed(() => {
 
 const statusColor = computed(() => {
   const statusIconMap = {
-    [MESSAGE_STATUS.SENT]: 'text-n-slate-10',
-    [MESSAGE_STATUS.DELIVERED]: 'text-n-slate-10',
-    [MESSAGE_STATUS.READ]: 'text-[#7EB6FF]',
+    [MESSAGE_STATUS.SENT]: 'text-n-wa-meta-out',
+    [MESSAGE_STATUS.DELIVERED]: 'text-n-wa-meta-out',
+    [MESSAGE_STATUS.READ]: 'text-n-wa-read',
   };
 
   return statusIconMap[status];
