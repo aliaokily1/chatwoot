@@ -71,6 +71,15 @@
     "FEEDBACK_TITLE": "Feedback",
     "REPLY_MESSAGE_NOT_FOUND": "Message not available",
     "REPLY_YOU": "You",
+    "REACTIONS": {
+      "REACT": "React",
+      "MORE": "More options",
+      "MORE_EMOJI": "More emojis",
+      "FROM_CONTACT": "Student’s reaction",
+      "FROM_US": "Your reaction",
+      "REMOVE_MINE": "Click to remove your reaction",
+      "ERROR": "Could not send the reaction."
+    },
     "STICKERS": {
       "CREATE": "Create",
       "CREATE_TITLE": "Create a sticker",

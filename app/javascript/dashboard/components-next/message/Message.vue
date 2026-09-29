@@ -2,7 +2,7 @@
 import { onMounted, computed, ref, toRefs } from 'vue';
 import { useTimeoutFn } from '@vueuse/core';
 import { provideMessageContext } from './provider.js';
-import { useTrack } from 'dashboard/composables';
+import { useTrack, useAlert } from 'dashboard/composables';
 import { useMapGetter } from 'dashboard/composables/store';
 import { emitter } from 'shared/helpers/mitt';
 import { useI18n } from 'vue-i18n';
@@ -42,6 +42,9 @@ import CSATBubble from './bubbles/CSAT.vue';
 import FormBubble from './bubbles/Form.vue';
 import VoiceCallBubble from './bubbles/VoiceCall.vue';
 import StickerBubble from './bubbles/Sticker.vue'; // Elkheta
+import MessageReactions from './MessageReactions.vue'; // Elkheta
+import MessageHoverActions from './MessageHoverActions.vue'; // Elkheta
+import MessageActionsAPI from 'dashboard/api/messageActions'; // Elkheta
 
 import MessageError from './MessageError.vue';
 import ContextMenu from 'dashboard/modules/conversations/components/MessageContextMenu.vue';
@@ -408,6 +411,8 @@ const contextMenuEnabledOptions = computed(() => {
       isOnChatwootCloud.value &&
       isCaptainMessage.value &&
       !isMessageDeleted.value,
+    // Elkheta
+    react: !props.private && !isFailedOrProcessing && !isMessageDeleted.value,
   };
 });
 
@@ -453,6 +458,32 @@ function openContextMenu(e) {
 function closeContextMenu() {
   showContextMenu.value = false;
   contextMenuPosition.value = { x: null, y: null };
+}
+
+// Elkheta: WhatsApp-style reactions
+const hoverActionsRef = ref(null);
+const reactions = computed(() => props.contentAttributes?.reactions || {});
+const myReaction = computed(() => reactions.value?.business?.emoji || '');
+const canUseHoverActions = computed(
+  () =>
+    isBubble.value &&
+    !props.private &&
+    variant.value !== MESSAGE_VARIANTS.ACTIVITY &&
+    props.status !== MESSAGE_STATUS.FAILED &&
+    !props.contentAttributes?.deleted
+);
+
+async function reactToMessage(emoji) {
+  try {
+    await MessageActionsAPI.react(props.conversationId, props.id, emoji);
+  } catch {
+    useAlert(t('CONVERSATION.REACTIONS.ERROR'));
+  }
+}
+
+function openReactionBar() {
+  closeContextMenu();
+  hoverActionsRef.value?.openBar();
 }
 
 function handleReplyTo() {
@@ -576,14 +607,42 @@ provideMessageContext({
         <Avatar v-bind="avatarInfo" :size="24" />
       </div>
       <div
-        class="[grid-area:bubble] flex min-w-0"
+        class="[grid-area:bubble] flex min-w-0 items-center gap-1.5 group/msg"
         :class="{
           'ltr:ml-8 rtl:mr-8 justify-end': orientation === ORIENTATION.RIGHT,
           'ltr:mr-8 rtl:ml-8': orientation === ORIENTATION.LEFT,
         }"
         @contextmenu="openContextMenu($event)"
       >
-        <Component :is="componentToRender" />
+        <!-- Elkheta: hover actions sit on the free side of the bubble -->
+        <MessageHoverActions
+          v-if="canUseHoverActions && orientation === ORIENTATION.RIGHT"
+          ref="hoverActionsRef"
+          align-end
+          :current-reaction="myReaction"
+          @react="reactToMessage"
+          @open-menu="openContextMenu"
+        />
+        <div
+          class="flex flex-col min-w-0"
+          :class="
+            orientation === ORIENTATION.RIGHT ? 'items-end' : 'items-start'
+          "
+        >
+          <Component :is="componentToRender" />
+          <MessageReactions
+            :reactions="reactions"
+            class="-mt-2 mx-3 relative z-10"
+            @remove-mine="reactToMessage('')"
+          />
+        </div>
+        <MessageHoverActions
+          v-if="canUseHoverActions && orientation === ORIENTATION.LEFT"
+          ref="hoverActionsRef"
+          :current-reaction="myReaction"
+          @react="reactToMessage"
+          @open-menu="openContextMenu"
+        />
       </div>
       <MessageError
         v-if="contentAttributes.externalError"
@@ -604,6 +663,7 @@ provideMessageContext({
         @open="openContextMenu"
         @close="closeContextMenu"
         @reply-to="handleReplyTo"
+        @react="openReactionBar"
       />
     </div>
   </div>

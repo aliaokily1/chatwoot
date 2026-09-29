@@ -73,6 +73,15 @@
     "FEEDBACK_TITLE": "الملاحظات",
     "REPLY_MESSAGE_NOT_FOUND": "الرسالة غير متوفرة",
     "REPLY_YOU": "أنت",
+    "REACTIONS": {
+      "REACT": "رياكت",
+      "MORE": "خيارات أكتر",
+      "MORE_EMOJI": "إيموجيز أكتر",
+      "FROM_CONTACT": "رياكت الطالب",
+      "FROM_US": "الرياكت بتاعك",
+      "REMOVE_MINE": "دوسي عشان تشيلي الرياكت بتاعك",
+      "ERROR": "مقدرناش نبعت الرياكت."
+    },
     "STICKERS": {
       "CREATE": "إنشاء",
       "CREATE_TITLE": "إنشاء استيكر",

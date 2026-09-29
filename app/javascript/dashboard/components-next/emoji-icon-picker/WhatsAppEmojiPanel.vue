@@ -12,6 +12,10 @@ import {
   getRecentEmojis,
 } from 'shared/components/emoji/pickerHelper';
 
+defineProps({
+  // Elkheta: reaction picker uses emojis only (no GIF / sticker tabs)
+  emojiOnly: { type: Boolean, default: false },
+});
 const emit = defineEmits(['select', 'sendSticker', 'busy']);
 
 const { t } = useI18n();
@@ -205,7 +209,7 @@ const onScroll = () => {
       }}
     </div>
 
-    <div class="flex justify-center pb-2 pt-1">
+    <div v-if="!emojiOnly" class="flex justify-center pb-2 pt-1">
       <div
         class="flex items-center rounded-full border border-n-weak overflow-hidden"
       >

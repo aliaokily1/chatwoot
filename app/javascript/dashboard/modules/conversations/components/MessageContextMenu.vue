@@ -47,7 +47,7 @@ export default {
       default: false,
     },
   },
-  emits: ['open', 'close', 'replyTo'],
+  emits: ['open', 'close', 'replyTo', 'react'],
   setup() {
     const { getPlainText } = useMessageFormatter();
 
@@ -216,6 +216,16 @@ export default {
           }"
           variant="icon"
           @click.stop="handleReplyTo"
+        />
+        <!-- Elkheta: open the WhatsApp-style reaction bar -->
+        <MenuItem
+          v-if="enabledOptions['react']"
+          :option="{
+            icon: 'emoji',
+            label: $t('CONVERSATION.REACTIONS.REACT'),
+          }"
+          variant="icon"
+          @click.stop="$emit('react')"
         />
         <MenuItem
           v-if="enabledOptions['copy']"
