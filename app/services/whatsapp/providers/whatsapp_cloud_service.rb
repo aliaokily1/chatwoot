@@ -138,6 +138,21 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
     process_response(response, message)
   end
 
+  # Elkheta: react to a WhatsApp message (an empty emoji removes the reaction)
+  def send_reaction(phone_number, message_source_id, emoji)
+    HTTParty.post(
+      "#{phone_id_path('v24.0')}/messages",
+      headers: api_headers,
+      body: {
+        messaging_product: 'whatsapp',
+        recipient_type: 'individual',
+        **recipient_params(phone_number),
+        type: 'reaction',
+        reaction: { message_id: message_source_id, emoji: emoji.to_s }
+      }.to_json
+    )
+  end
+
   def send_attachment_message(phone_number, message)
     attachment = message.attachments.first
     normalize_opus_content_type(attachment)

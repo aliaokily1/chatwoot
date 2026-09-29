@@ -25,6 +25,9 @@ class Whatsapp::IncomingMessageBaseService
   private
 
   def process_messages
+    # Elkheta: reactions are stored on the message they react to
+    return process_reaction if message_type == 'reaction'
+
     # We don't support reactions & ephemeral message now, we need to skip processing the message
     # if the webhook event is a reaction or an ephermal message or an unsupported message.
     return if unprocessable_message_type?(message_type)
@@ -104,6 +107,23 @@ class Whatsapp::IncomingMessageBaseService
     mark_sticker if message_type == 'sticker'
     @message.save!
     collect_sticker if message_type == 'sticker'
+  end
+
+  # Elkheta: a reaction from the student (or from the Admin's phone, via Coexistence echo).
+  # WhatsApp allows one reaction per side, and an empty emoji removes it.
+  def process_reaction
+    reaction = messages_data.first[:reaction] || {}
+    target = Message.find_by(source_id: reaction[:message_id], inbox_id: @inbox.id)
+    return if target.blank?
+
+    key = outgoing_echo ? 'business' : 'contact'
+    reactions = (target.content_attributes[:reactions] || {}).to_h.deep_stringify_keys
+    if reaction[:emoji].present?
+      reactions[key] = { 'emoji' => reaction[:emoji], 'at' => Time.current.to_i }
+    else
+      reactions.delete(key)
+    end
+    target.update!(content_attributes: target.content_attributes.merge('reactions' => reactions))
   end
 
   # Elkheta: render stickers as stickers, and keep them in the account's sticker library
@@ -191,6 +211,9 @@ class Whatsapp::IncomingMessageBaseService
   def message_content_attributes(message)
     content_attrs = outgoing_echo ? { external_echo: true } : {}
     content_attrs[:in_reply_to_external_id] = @in_reply_to_external_id if @in_reply_to_external_id.present?
+    # Elkheta: WhatsApp marks forwarded messages in the context object
+    context = (message['context'] || message[:context] || {}).to_h.with_indifferent_access
+    content_attrs[:forwarded] = true if context[:forwarded] || context[:frequently_forwarded]
     referral_content_attrs = referral_attributes(message)
     content_attrs[:referral] = referral_content_attrs if referral_content_attrs.present?
     content_attrs

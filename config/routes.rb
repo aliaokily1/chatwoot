@@ -153,6 +153,13 @@ Rails.application.routes.draw do
             scope module: :conversations do
               # Elkheta: send a sticker from the library
               post 'stickers/:sticker_id', to: 'stickers#create', as: :send_sticker
+              # Elkheta: WhatsApp-style message actions
+              post 'messages/:message_id/react', to: 'message_actions#react', as: :react_message
+              post 'messages/:message_id/forward', to: 'message_actions#forward', as: :forward_message
+              post 'messages/:message_id/pin', to: 'message_actions#pin', as: :pin_message
+              delete 'messages/:message_id/pin', to: 'message_actions#unpin', as: :unpin_message
+              post 'messages/:message_id/star', to: 'message_actions#star', as: :star_message
+              delete 'messages/:message_id/star', to: 'message_actions#unstar', as: :unstar_message
               resources :messages, only: [:index, :create, :destroy, :update] do
                 member do
                   post :translate
@@ -276,6 +283,8 @@ Rails.application.routes.draw do
 
           resources :custom_attribute_definitions, only: [:index, :show, :create, :update, :destroy]
           resources :custom_filters, only: [:index, :show, :create, :update, :destroy]
+          # Elkheta: the agent's starred messages
+          resources :starred_messages, only: [:index]
           # Elkheta: WhatsApp sticker library
           resources :stickers, only: [:index, :create, :destroy] do
             member do
