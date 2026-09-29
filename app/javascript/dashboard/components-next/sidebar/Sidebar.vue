@@ -414,14 +414,6 @@ const menuItems = computed(() => {
             : 0,
           to: accountScopedRoute('conversation_unattended'),
         },
-        // Elkheta: Unread view
-        {
-          name: 'Unread',
-          activeOn: ['conversation_through_unread'],
-          label: t('SIDEBAR.UNREAD_CONVERSATIONS'),
-          icon: 'i-lucide-message-circle',
-          to: accountScopedRoute('conversation_unread'),
-        },
         {
           name: 'Folders',
           label: t('SIDEBAR.CUSTOM_VIEWS_FOLDER'),

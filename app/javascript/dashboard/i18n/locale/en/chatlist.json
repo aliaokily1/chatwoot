@@ -8,6 +8,21 @@
     },
     "FAILED_TO_SEND": "Failed to send",
     "TAB_HEADING": "Conversations",
+    "CHIPS": {
+      "ALL": "All",
+      "UNREAD": "Unread",
+      "FAVOURITES": "Favourites",
+      "NEW_LIST": "New list",
+      "LIST_NAME": "List name",
+      "DELETE_LIST": "Delete list",
+      "DELETE_CONFIRM": "Delete the list \"{name}\"? The chats themselves are not deleted.",
+      "CREATE_ERROR": "Could not create the list. Try another name.",
+      "DELETE_ERROR": "Could not delete the list.",
+      "UPDATE_ERROR": "Could not update the list.",
+      "ADD_TO_FAVOURITES": "Add to favourites",
+      "REMOVE_FROM_FAVOURITES": "Remove from favourites",
+      "ADD_TO_LIST": "Add to list"
+    },
     "MENTION_HEADING": "Mentions",
     "UNATTENDED_HEADING": "Unattended",
     "SEARCH": {

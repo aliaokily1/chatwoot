@@ -14,6 +14,7 @@ import wootConstants from 'dashboard/constants/globals';
 import AgentLoadingPlaceholder from './agentLoadingPlaceholder.vue';
 import NextInput from 'dashboard/components-next/input/Input.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
+import { useConversationLists } from 'dashboard/composables/useConversationLists';
 
 const MENU = {
   MARK_AS_READ: 'mark-as-read',
@@ -27,6 +28,7 @@ const MENU = {
   DELETE: 'delete',
   OPEN_NEW_TAB: 'open-new-tab',
   COPY_LINK: 'copy-link',
+  LISTS: 'lists', // Elkheta
 };
 
 export default {
@@ -85,8 +87,19 @@ export default {
   ],
   setup() {
     const { isAdmin } = useAdmin();
+    // Elkheta: personal lists (Favourites + custom)
+    const {
+      favourites: favouritesList,
+      customLists,
+      isInList,
+      toggleConversation,
+    } = useConversationLists();
     return {
       isAdmin,
+      favouritesList,
+      customLists,
+      isInList,
+      toggleConversation,
     };
   },
   data() {
@@ -239,6 +252,17 @@ export default {
       if (!this.allowedOptions.length) return true;
       return keys.some(key => this.allowedOptions.includes(key));
     },
+    // Elkheta: add/remove this chat in one of the agent's personal lists
+    async toggleList(listId) {
+      try {
+        await this.toggleConversation(listId, this.chatId);
+      } catch {
+        useAlert(this.$t('CHAT_LIST.CHIPS.UPDATE_ERROR'));
+      }
+    },
+    listOption(list) {
+      return { label: list.name };
+    },
     toggleStatus(status, snoozedUntil) {
       this.$emit('updateConversation', status, snoozedUntil);
     },
@@ -310,6 +334,31 @@ export default {
         variant="icon"
         @click.stop="$emit('markAsRead')"
       />
+      <hr class="m-1 rounded border-b border-n-weak dark:border-n-weak" />
+    </template>
+    <template v-if="favouritesList && isAllowed([MENU.LISTS])">
+      <MenuItem
+        :option="{
+          label: isInList(favouritesList.id, chatId)
+            ? $t('CHAT_LIST.CHIPS.REMOVE_FROM_FAVOURITES')
+            : $t('CHAT_LIST.CHIPS.ADD_TO_FAVOURITES'),
+          icon: 'star-emphasis',
+        }"
+        variant="icon"
+        @click.stop="toggleList(favouritesList.id)"
+      />
+      <MenuItemWithSubmenu
+        :option="{ label: $t('CHAT_LIST.CHIPS.ADD_TO_LIST'), icon: 'list' }"
+        :sub-menu-available="!!customLists.length"
+      >
+        <MenuItem
+          v-for="list in customLists"
+          :key="list.id"
+          :option="listOption(list)"
+          :variant="isInList(list.id, chatId) ? 'label-assigned' : 'default'"
+          @click.stop="toggleList(list.id)"
+        />
+      </MenuItemWithSubmenu>
       <hr class="m-1 rounded border-b border-n-weak dark:border-n-weak" />
     </template>
     <template v-if="isAllowed([MENU.STATUS, MENU.SNOOZE])">

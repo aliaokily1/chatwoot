@@ -8,6 +8,21 @@
     },
     "FAILED_TO_SEND": "Failed to send",
     "TAB_HEADING": "المحادثات",
+    "CHIPS": {
+      "ALL": "الكل",
+      "UNREAD": "غير مقروءة",
+      "FAVOURITES": "المفضلة",
+      "NEW_LIST": "قائمة جديدة",
+      "LIST_NAME": "اسم القائمة",
+      "DELETE_LIST": "حذف القائمة",
+      "DELETE_CONFIRM": "حذف قائمة \"{name}\"؟ المحادثات نفسها مش هتتمسح.",
+      "CREATE_ERROR": "مقدرناش نعمل القائمة. جربي اسم تاني.",
+      "DELETE_ERROR": "مقدرناش نحذف القائمة.",
+      "UPDATE_ERROR": "مقدرناش نعدّل القائمة.",
+      "ADD_TO_FAVOURITES": "إضافة للمفضلة",
+      "REMOVE_FROM_FAVOURITES": "إزالة من المفضلة",
+      "ADD_TO_LIST": "إضافة لقائمة"
+    },
     "MENTION_HEADING": "الإشارات",
     "UNATTENDED_HEADING": "بدون حضور",
     "SEARCH": {

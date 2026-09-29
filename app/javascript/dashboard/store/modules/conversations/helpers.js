@@ -42,8 +42,27 @@ export const filterByUnread = (shouldFilter, conversationType, unreadCount) => {
     : shouldFilter;
 };
 
+// Elkheta: a personal list view keeps only conversations in that list
+export const filterByList = (
+  shouldFilter,
+  listId,
+  listConversationIds,
+  conversationId
+) => {
+  if (!listId) return shouldFilter;
+  return (listConversationIds || []).includes(conversationId) && shouldFilter;
+};
+
 export const applyPageFilters = (conversation, filters) => {
-  const { inboxId, status, labels = [], teamId, conversationType } = filters;
+  const {
+    inboxId,
+    status,
+    labels = [],
+    teamId,
+    conversationType,
+    listId,
+    listConversationIds,
+  } = filters;
   const {
     status: chatStatus,
     inbox_id: chatInboxId,
@@ -67,6 +86,12 @@ export const applyPageFilters = (conversation, filters) => {
     waitingSince
   );
   shouldFilter = filterByUnread(shouldFilter, conversationType, unreadCount);
+  shouldFilter = filterByList(
+    shouldFilter,
+    listId,
+    listConversationIds,
+    conversation.id
+  );
 
   return shouldFilter;
 };

@@ -12,7 +12,10 @@ import ConversationList from './ConversationList.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import ConversationFilter from 'next/filter/ConversationFilter.vue';
 import SaveCustomView from 'next/filter/SaveCustomView.vue';
-import ChatTypeTabs from './widgets/ChatTypeTabs.vue';
+import ChatListChips from './widgets/ChatListChips.vue';
+import { useDebounceFn } from '@vueuse/core';
+import ConversationApi from 'dashboard/api/inbox/conversation';
+import { useConversationLists } from 'dashboard/composables/useConversationLists';
 import DeleteCustomViews from 'dashboard/routes/dashboard/customviews/DeleteCustomViews.vue';
 import ConversationBulkActions from './widgets/conversation/conversationBulkActions/Index.vue';
 import TeleportWithDirection from 'dashboard/components-next/TeleportWithDirection.vue';
@@ -72,7 +75,21 @@ const store = useStore();
 
 const resolveAttributesModalRef = ref(null);
 
-const activeAssigneeTab = ref(wootConstants.ASSIGNEE_TYPE.ME);
+// Elkheta: WhatsApp-style list — everything on the Admin's number, filtered by chips
+const activeAssigneeTab = ref(wootConstants.ASSIGNEE_TYPE.ALL);
+const activeChip = ref('all');
+const unreadChatsCount = ref(0);
+const {
+  favourites: favouritesList,
+  customLists,
+  fetchLists,
+  findList,
+  createList,
+  deleteList,
+} = useConversationLists();
+const activeListId = computed(() =>
+  typeof activeChip.value === 'number' ? activeChip.value : undefined
+);
 const activeStatus = ref(wootConstants.STATUS_TYPE.OPEN);
 const activeSortBy = ref(wootConstants.SORT_BY_TYPE.LAST_ACTIVITY_AT_DESC);
 const showAdvancedFilters = ref(false);
@@ -255,7 +272,13 @@ const conversationFilters = computed(() => {
     page: conversationListPagination.value,
     labels: props.label ? [props.label] : undefined,
     teamId: props.teamId || undefined,
-    conversationType: props.conversationType || undefined,
+    conversationType:
+      props.conversationType ||
+      (activeChip.value === 'unread' ? 'unread' : undefined),
+    listId: activeListId.value,
+    listConversationIds: activeListId.value
+      ? findList(activeListId.value)?.conversation_ids || []
+      : undefined,
   };
 });
 
@@ -603,6 +626,54 @@ function loadMoreConversations() {
   }
 }
 
+// Elkheta: chips (All · Unread · Favourites · personal lists)
+const refreshUnreadCount = useDebounceFn(async () => {
+  try {
+    const { inboxId, labels, teamId } = conversationFilters.value;
+    const { data } = await ConversationApi.meta({
+      inboxId,
+      labels,
+      teamId,
+      status: activeStatus.value,
+      assigneeType: wootConstants.ASSIGNEE_TYPE.ALL,
+      conversationType: 'unread',
+    });
+    unreadChatsCount.value = data?.meta?.all_count || 0;
+  } catch {
+    // keep the last known count
+  }
+}, 1000);
+
+function onChipChange(chip) {
+  if (activeChip.value === chip) return;
+  activeChip.value = chip;
+  resetAndFetchData();
+  refreshUnreadCount();
+}
+
+async function onCreateList(name) {
+  try {
+    const list = await createList(name);
+    onChipChange(list.id);
+  } catch {
+    useAlert(t('CHAT_LIST.CHIPS.CREATE_ERROR'));
+  }
+}
+
+async function onDeleteList(list) {
+  try {
+    await deleteList(list.id);
+    if (activeChip.value === list.id) onChipChange('all');
+  } catch {
+    useAlert(t('CHAT_LIST.CHIPS.DELETE_ERROR'));
+  }
+}
+
+const totalUnreadMessages = computed(() =>
+  chatLists.value.reduce((sum, chat) => sum + (chat.unread_count || 0), 0)
+);
+watch(totalUnreadMessages, () => refreshUnreadCount());
+
 function updateAssigneeTab(selectedTab) {
   if (activeAssigneeTab.value !== selectedTab) {
     resetBulkActions();
@@ -806,6 +877,8 @@ useEmitter('fetch_conversation_stats', () => {
 });
 
 onMounted(() => {
+  fetchLists();
+  refreshUnreadCount();
   store.dispatch('setChatListFilters', conversationFilters.value);
   setFiltersFromUISettings();
   store.dispatch('setChatStatusFilter', activeStatus.value);
@@ -927,12 +1000,15 @@ watch(conversationFilters, (newVal, oldVal) => {
       @close="onCloseDeleteFoldersModal"
     />
 
-    <ChatTypeTabs
+    <ChatListChips
       v-if="!hasAppliedFiltersOrActiveFolders"
-      :items="assigneeTabItems"
-      :active-tab="activeAssigneeTab"
-      is-compact
-      @chat-tab-change="updateAssigneeTab"
+      :active-chip="activeChip"
+      :unread-count="unreadChatsCount"
+      :favourites-list="favouritesList"
+      :custom-lists="customLists"
+      @change="onChipChange"
+      @create-list="onCreateList"
+      @delete-list="onDeleteList"
     />
 
     <p
