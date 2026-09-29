@@ -109,6 +109,8 @@
       "CLOSE": "أغلق",
       "DETAILS": "التفاصيل",
       "COPY_ID_SUCCESS": "Conversation ID copied to clipboard",
+      "OPEN_CONTACT_DETAILS": "بيانات جهة الاتصال",
+      "CLOSE_CHAT": "إغلاق المحادثة",
       "SNOOZED_UNTIL": "غفوة حتى",
       "SNOOZED_UNTIL_TOMORROW": "تأجيل حتى الغد",
       "SNOOZED_UNTIL_NEXT_WEEK": "تأجيل حتى الأسبوع القادم",

@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import { useElementSize } from '@vueuse/core';
 import BackButton from '../BackButton.vue';
@@ -16,6 +16,8 @@ import { useInbox } from 'dashboard/composables/useInbox';
 import { useAlert } from 'dashboard/composables';
 import { useI18n } from 'vue-i18n';
 import { copyTextToClipboard } from 'shared/helpers/clipboard';
+import { useUISettings } from 'dashboard/composables/useUISettings';
+import Button from 'dashboard/components-next/button/Button.vue';
 
 const props = defineProps({
   chat: {
@@ -97,6 +99,22 @@ const hasSlaPolicyId = computed(
   () => props.chat?.applied_sla?.id && !currentContact.value?.blocked
 );
 
+// Elkheta: WhatsApp-like header — click the contact to open their details,
+// and a close button to leave the chat without opening another one.
+const router = useRouter();
+const { updateUISettings } = useUISettings();
+
+const openContactDetails = () => {
+  updateUISettings({
+    is_contact_sidebar_open: true,
+    is_copilot_panel_open: false,
+  });
+};
+
+const closeConversation = () => {
+  router.push(backButtonUrl.value);
+};
+
 const copyConversationId = async () => {
   try {
     await copyTextToClipboard(String(props.chat.id));
@@ -120,22 +138,32 @@ const copyConversationId = async () => {
         :back-url="backButtonUrl"
         class="ltr:mr-2 rtl:ml-2"
       />
-      <Avatar
-        :name="currentContact.name"
-        :src="currentContact.thumbnail"
-        :size="32"
-        :status="currentContact.availability_status"
-        hide-offline-status
-      />
+      <button
+        type="button"
+        class="flex-shrink-0 !p-0 border-0 bg-transparent cursor-pointer"
+        :title="$t('CONVERSATION.HEADER.OPEN_CONTACT_DETAILS')"
+        @click="openContactDetails"
+      >
+        <Avatar
+          :name="currentContact.name"
+          :src="currentContact.thumbnail"
+          :size="32"
+          :status="currentContact.availability_status"
+          hide-offline-status
+        />
+      </button>
       <div
         class="flex flex-col items-start min-w-0 ml-2 overflow-hidden rtl:ml-0 rtl:mr-2"
       >
         <div class="flex flex-row items-center max-w-full gap-1 p-0 m-0">
-          <span
-            class="text-sm font-medium truncate leading-tight text-n-slate-12"
+          <button
+            type="button"
+            class="text-sm font-medium truncate leading-tight text-n-slate-12 hover:underline !p-0 border-0 bg-transparent cursor-pointer"
+            :title="$t('CONVERSATION.HEADER.OPEN_CONTACT_DETAILS')"
+            @click="openContactDetails"
           >
             {{ currentContact.name }}
-          </span>
+          </button>
           <fluent-icon
             v-if="!isHMACVerified"
             v-tooltip="$t('CONVERSATION.UNVERIFIED_SESSION')"
@@ -148,6 +176,16 @@ const copyConversationId = async () => {
         <div
           class="flex items-center gap-1 overflow-hidden text-xs conversation--header--actions text-n-slate-11 text-ellipsis whitespace-nowrap"
         >
+          <button
+            v-if="currentContact.phone_number"
+            type="button"
+            class="truncate text-label-small text-n-slate-11 hover:text-n-slate-12 !p-0 cursor-pointer"
+            dir="ltr"
+            @click="openContactDetails"
+          >
+            {{ currentContact.phone_number }}
+          </button>
+          <span v-if="currentContact.phone_number">•</span>
           <button
             type="button"
             class="truncate text-label-small text-n-slate-11 hover:text-n-slate-12 !p-0 cucursor-pointer"
@@ -176,6 +214,15 @@ const copyConversationId = async () => {
       />
       <ConversationCallButton :inbox="inbox" :chat="currentChat" />
       <MoreActions :conversation-id="currentChat.id" />
+      <Button
+        v-if="!showBackButton"
+        v-tooltip="$t('CONVERSATION.HEADER.CLOSE_CHAT')"
+        icon="i-lucide-x"
+        slate
+        ghost
+        sm
+        @click="closeConversation"
+      />
     </div>
   </div>
 </template>
