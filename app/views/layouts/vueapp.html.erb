@@ -33,6 +33,8 @@
       <link rel="manifest" href="/manifest.json">
     <% end %>
     <link rel="icon" type="image/png" sizes="512x512" href="<%= @global_config['LOGO_THUMBNAIL'] %>">
+    <%# Elkheta: the Elkheta Class mark as the tab icon (declared last so browsers prefer it) %>
+    <link rel="icon" type="image/svg+xml" href="/brand-assets/logo_thumbnail.svg">
     <%= csrf_meta_tags %>
     <script>
       window.chatwootConfig = {
