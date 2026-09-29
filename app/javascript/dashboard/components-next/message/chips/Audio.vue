@@ -6,6 +6,7 @@ import {
   ref,
   getCurrentInstance,
 } from 'vue';
+import { useLocalStorage } from '@vueuse/core';
 import Icon from 'next/icon/Icon.vue';
 import { timeStampAppendedURL } from 'dashboard/helper/URLHelper';
 import { downloadFile } from '@chatwoot/utils';
@@ -48,7 +49,8 @@ const isPlaying = ref(false);
 const isMuted = ref(false);
 const currentTime = ref(0);
 const duration = ref(0);
-const playbackSpeed = ref(1);
+// Elkheta: remember the chosen voice-note speed for all players (like WhatsApp)
+const playbackSpeed = useLocalStorage('elkheta.audioPlaybackSpeed', 1);
 
 const { uid } = getCurrentInstance();
 
@@ -135,6 +137,7 @@ const playOrPause = () => {
   } else {
     // Emit event to pause all other audio
     emitter.emit('pause_playing_audio', uid);
+    audioPlayer.value.playbackRate = playbackSpeed.value;
     audioPlayer.value.play();
     isPlaying.value = true;
   }
@@ -143,13 +146,14 @@ const playOrPause = () => {
 const onEnd = () => {
   isPlaying.value = false;
   currentTime.value = 0;
-  playbackSpeed.value = 1;
-  audioPlayer.value.playbackRate = 1;
 };
 
 const changePlaybackSpeed = () => {
   const speeds = [1, 1.5, 2];
-  const currentIndex = speeds.indexOf(playbackSpeed.value);
+  const currentIndex = Math.max(
+    speeds.indexOf(Number(playbackSpeed.value)),
+    0
+  );
   const nextIndex = (currentIndex + 1) % speeds.length;
   playbackSpeed.value = speeds[nextIndex];
   audioPlayer.value.playbackRate = playbackSpeed.value;
