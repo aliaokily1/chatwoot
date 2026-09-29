@@ -125,12 +125,18 @@ export default {
       type: Boolean,
       default: false,
     },
+    // Elkheta: WhatsApp-style one-line composer (buttons around the editor)
+    waCompact: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: [
     'toggleInsertArticle',
     'selectWhatsappTemplate',
     'selectContentTemplate',
     'toggleQuotedReply',
+    'toggleNote',
   ],
   setup(props) {
     const { setSignatureFlagForInbox, fetchSignatureFlagFromUISettings } =
@@ -201,6 +207,16 @@ export default {
     showAudioPlayStopButton() {
       if (this.isEditorDisabled) return false;
       return this.showAudioRecorder && this.isRecordingAudio;
+    },
+    // Elkheta: like WhatsApp, the mic takes the send button's place while nothing is typed
+    showMicInsteadOfSend() {
+      return (
+        this.waCompact &&
+        this.showAudioRecorderButton &&
+        !this.isRecordingAudio &&
+        this.isSendDisabled &&
+        !this.isNote
+      );
     },
     isInstagramDM() {
       return this.conversationType === 'instagram_direct_message';
@@ -276,7 +292,10 @@ export default {
 </script>
 
 <template>
-  <div class="flex justify-between p-3" :class="wrapClass">
+  <div
+    class="flex justify-between p-3"
+    :class="[wrapClass, { 'wa-bottom-panel': waCompact }]"
+  >
     <div class="left-wrap">
       <NextButton
         v-if="!isEditorDisabled"
@@ -313,7 +332,7 @@ export default {
         />
       </FileUpload>
       <NextButton
-        v-if="showAudioRecorderButton"
+        v-if="showAudioRecorderButton && (!waCompact || isRecordingAudio)"
         v-tooltip.top-end="$t('CONVERSATION.REPLYBOX.TIP_AUDIORECORDER_ICON')"
         :icon="!isRecordingAudio ? 'i-ph-microphone' : 'i-ph-microphone-slash'"
         slate
@@ -331,7 +350,20 @@ export default {
         @click="toggleAudioRecorderPlayPause"
       />
       <NextButton
-        v-if="showMessageSignatureButton"
+        v-if="waCompact && !isEditorDisabled"
+        v-tooltip.top-end="
+          isNote
+            ? $t('CONVERSATION.REPLYBOX.REPLY')
+            : $t('CONVERSATION.REPLYBOX.PRIVATE_NOTE')
+        "
+        :icon="isNote ? 'i-ph-chat-circle-text' : 'i-ph-note-pencil'"
+        :color="isNote ? 'amber' : 'slate'"
+        faded
+        sm
+        @click="$emit('toggleNote')"
+      />
+      <NextButton
+        v-if="showMessageSignatureButton && !waCompact"
         v-tooltip.top-end="signatureToggleTooltip"
         icon="i-ph-signature"
         slate
@@ -397,7 +429,31 @@ export default {
       />
     </div>
     <div class="right-wrap">
+      <template v-if="waCompact">
+        <NextButton
+          v-if="showMicInsteadOfSend"
+          v-tooltip.top-end="$t('CONVERSATION.REPLYBOX.TIP_AUDIORECORDER_ICON')"
+          icon="i-ph-microphone"
+          slate
+          ghost
+          class="flex-shrink-0 !rounded-full"
+          @click="toggleAudioRecorder"
+        />
+        <NextButton
+          v-else
+          v-tooltip.top-end="sendButtonText"
+          icon="i-ph-paper-plane-right-fill"
+          type="submit"
+          :disabled="isSendDisabled"
+          class="flex-shrink-0 !rounded-full rtl:-scale-x-100"
+          :class="
+            isNote ? '!bg-n-amber-9 !text-white' : '!bg-n-wa-accent !text-white'
+          "
+          @click="onSend"
+        />
+      </template>
       <NextButton
+        v-else
         :label="sendButtonText"
         type="submit"
         sm

@@ -2,9 +2,11 @@
 import { MESSAGE_TYPE } from 'widget/helpers/constants';
 import { useMessageFormatter } from 'shared/composables/useMessageFormatter';
 import { ATTACHMENT_ICONS } from 'shared/constants/messages';
+import Icon from 'dashboard/components-next/icon/Icon.vue';
 
 export default {
   name: 'MessagePreview',
+  components: { Icon },
   props: {
     message: {
       type: Object,
@@ -56,6 +58,21 @@ export default {
     isMessageSticker() {
       return this.message && this.message.content_type === 'sticker';
     },
+    // Elkheta: ✓ sent · ✓✓ delivered · blue ✓✓ read · ! failed · clock sending
+    statusTick() {
+      const map = {
+        read: { icon: 'i-lucide-check-check', color: 'text-n-wa-read' },
+        delivered: { icon: 'i-lucide-check-check', color: 'text-n-slate-10' },
+        sent: { icon: 'i-lucide-check', color: 'text-n-slate-10' },
+        failed: { icon: 'i-lucide-circle-alert', color: 'text-n-ruby-9' },
+      };
+      return (
+        map[this.message.status] || {
+          icon: 'i-lucide-clock-3',
+          color: 'text-n-slate-10',
+        }
+      );
+    },
   },
 };
 </script>
@@ -69,11 +86,12 @@ export default {
         class="-mt-0.5 align-middle text-n-slate-11 inline-block"
         icon="lock-closed"
       />
-      <fluent-icon
+      <!-- Elkheta: WhatsApp ticks instead of the reply arrow -->
+      <Icon
         v-else-if="messageByAgent"
-        size="16"
-        class="-mt-0.5 align-middle text-n-slate-11 inline-block"
-        icon="arrow-reply"
+        :icon="statusTick.icon"
+        class="-mt-0.5 align-middle inline-block size-4 ltr:mr-0.5 rtl:ml-0.5"
+        :class="statusTick.color"
       />
       <fluent-icon
         v-else-if="isMessageAnActivity"

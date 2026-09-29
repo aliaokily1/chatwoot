@@ -319,6 +319,7 @@ export default {
       return {
         'is-private': this.isPrivate,
         'is-focused': this.isFocused || this.hasAttachments,
+        'wa-composer': true, // Elkheta: WhatsApp-style one-line composer
       };
     },
     hasAttachments() {
@@ -928,6 +929,12 @@ export default {
       });
       this.hideContentTemplatesModal();
     },
+    // Elkheta: the note button in the composer switches between reply and private note
+    toggleNoteMode() {
+      this.setReplyMode(
+        this.isOnPrivateNote ? REPLY_EDITOR_MODES.REPLY : REPLY_EDITOR_MODES.NOTE
+      );
+    },
     setReplyMode(mode = REPLY_EDITOR_MODES.REPLY) {
       // Clear attachments when switching between private note and reply modes
       // This is to prevent from breaking the upload rules
@@ -1255,6 +1262,8 @@ export default {
   <ReplyBoxBanner :message="message" :is-on-private-note="isOnPrivateNote" />
   <div ref="replyEditor" class="reply-box" :class="replyBoxClass">
     <ReplyTopPanel
+      v-show="isOnPrivateNote"
+      class="wa-top-panel"
       :mode="replyType"
       :conversation-id="conversationId"
       :is-reply-restricted="isReplyRestricted"
@@ -1437,6 +1446,8 @@ export default {
         :message="message"
         :portal-slug="connectedPortalSlug"
         :new-conversation-modal-active="newConversationModalActive"
+        wa-compact
+        @toggle-note="toggleNoteMode"
         @select-whatsapp-template="openWhatsappTemplateModal"
         @select-content-template="openContentTemplateModal"
         @toggle-insert-article="toggleInsertArticle"
@@ -1478,6 +1489,40 @@ export default {
 
   &.is-private {
     @apply bg-n-solid-amber dark:border-n-amber-3/10 border-n-amber-12/5;
+  }
+
+  // Elkheta: WhatsApp-style composer — [emoji · attach · note] [editor] [mic / send]
+  &.wa-composer {
+    @apply flex flex-wrap items-end gap-x-1 px-2 py-1.5 rounded-3xl border-transparent;
+
+    &:not(.is-private) {
+      @apply bg-n-wa-in dark:bg-[#2A3942];
+    }
+
+    .wa-top-panel {
+      @apply basis-full order-none;
+    }
+
+    .reply-box__top {
+      @apply order-2 flex-1 min-w-0 px-1;
+    }
+
+    :deep(.wa-bottom-panel) {
+      display: contents;
+
+      .left-wrap {
+        @apply order-1 gap-1 pb-0.5;
+      }
+
+      .right-wrap {
+        @apply order-3 pb-0.5;
+      }
+    }
+
+    :deep(.ProseMirror-woot-style) {
+      min-height: 1.5rem !important;
+      max-height: 9rem !important;
+    }
   }
 }
 

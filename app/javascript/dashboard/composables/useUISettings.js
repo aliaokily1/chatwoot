@@ -127,7 +127,8 @@ const isEditorHotKeyEnabled = (key, uiSettings) => {
     enter_to_send_enabled: enterToSendEnabled,
   } = uiSettings.value || {};
   if (!editorMessageKey) {
-    return key === (enterToSendEnabled ? 'enter' : 'cmd_enter');
+    // Elkheta: Enter sends by default, like WhatsApp (Shift+Enter for a new line)
+    return key === (enterToSendEnabled ?? true ? 'enter' : 'cmd_enter');
   }
   return editorMessageKey === key;
 };

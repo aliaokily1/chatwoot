@@ -509,7 +509,7 @@ export default {
         />
       </template>
     </MessageList>
-    <div class="flex relative flex-col bg-n-surface-1">
+    <div class="flex relative flex-col bg-n-wa-panel">
       <div
         v-if="isAnyoneTyping"
         class="absolute flex items-center w-full h-0 -top-7"
@@ -525,12 +525,11 @@ export default {
           />
         </div>
       </div>
-      <ResizableEditorWrapper
-        ref="resizableEditorWrapperRef"
-        :container-height="Math.max(0, containerHeight - topBannerHeight)"
-      >
-        <ReplyBox @toggle-editor-size="toggleReplyEditorSize" />
-      </ResizableEditorWrapper>
+      <!-- Elkheta: WhatsApp-style composer grows with its content (no drag-resize) -->
+      <ReplyBox
+        class="mt-2"
+        @toggle-editor-size="toggleReplyEditorSize"
+      />
     </div>
   </div>
 </template>

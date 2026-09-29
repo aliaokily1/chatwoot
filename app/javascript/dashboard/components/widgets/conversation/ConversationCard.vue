@@ -5,7 +5,11 @@ import Avatar from 'next/avatar/Avatar.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import MessagePreview from './MessagePreview.vue';
 import InboxName from '../InboxName.vue';
-import TimeAgo from 'dashboard/components/ui/TimeAgo.vue';
+import { useI18n } from 'vue-i18n';
+import {
+  messageTimestamp,
+  relativeDayTimestamp,
+} from 'shared/helpers/timeHelper';
 import CardLabels from './conversationCardComponents/CardLabels.vue';
 import CardPriorityIcon from 'dashboard/components-next/Conversation/ConversationCard/CardPriorityIcon.vue';
 import UnreadBadge from 'dashboard/components-next/Conversation/ConversationCard/UnreadBadge.vue';
@@ -38,6 +42,22 @@ const hovered = ref(false);
 const unreadCount = computed(() => props.chat.unread_count);
 const hasUnread = computed(() => unreadCount.value > 0);
 const lastMessageInChat = computed(() => getLastMessage(props.chat));
+
+// Elkheta: WhatsApp-style list time — "3:45 PM", "Yesterday", or a date
+const { t } = useI18n();
+const lastMessageTimestamp = computed(
+  () => lastMessageInChat.value?.created_at || props.chat.timestamp
+);
+const lastMessageTime = computed(() =>
+  lastMessageTimestamp.value
+    ? relativeDayTimestamp(lastMessageTimestamp.value, t('CHAT_LIST.YESTERDAY'))
+    : ''
+);
+const lastMessageFullTime = computed(() =>
+  lastMessageTimestamp.value
+    ? messageTimestamp(lastMessageTimestamp.value, 'LLL d, h:mm a')
+    : ''
+);
 
 const voiceCallData = computed(() => {
   const last = lastMessageInChat.value;
@@ -219,12 +239,13 @@ watch(
         class="absolute flex flex-col ltr:right-3 rtl:left-3"
         :class="showMetaSection ? 'top-8' : 'top-4'"
       >
-        <span class="ml-auto font-normal leading-4 text-xxs">
-          <TimeAgo
-            :last-activity-timestamp="chat.timestamp"
-            :created-at-timestamp="chat.created_at"
-            :conversation-id="chat.id"
-          />
+        <!-- Elkheta: one WhatsApp-style time (last message), green when unread -->
+        <span
+          class="ml-auto font-normal leading-4 text-xs"
+          :class="hasUnread ? 'text-n-wa-accent' : 'text-n-slate-11'"
+          :title="lastMessageFullTime"
+        >
+          {{ lastMessageTime }}
         </span>
         <UnreadBadge
           v-if="hasUnread"
