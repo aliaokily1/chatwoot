@@ -151,6 +151,8 @@ Rails.application.routes.draw do
               post :filter
             end
             scope module: :conversations do
+              # Elkheta: send a sticker from the library
+              post 'stickers/:sticker_id', to: 'stickers#create', as: :send_sticker
               resources :messages, only: [:index, :create, :destroy, :update] do
                 member do
                   post :translate
@@ -274,6 +276,13 @@ Rails.application.routes.draw do
 
           resources :custom_attribute_definitions, only: [:index, :show, :create, :update, :destroy]
           resources :custom_filters, only: [:index, :show, :create, :update, :destroy]
+          # Elkheta: WhatsApp sticker library
+          resources :stickers, only: [:index, :create, :destroy] do
+            member do
+              post :favorite
+              delete :favorite, action: :unfavorite
+            end
+          end
           # Elkheta: personal chat lists (Favourites + custom)
           resources :conversation_lists, only: [:index, :create, :update, :destroy] do
             member do

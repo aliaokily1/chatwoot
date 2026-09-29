@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_09_29_000002) do
+ActiveRecord::Schema[7.1].define(version: 2026_09_29_000003) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1381,6 +1381,31 @@ ActiveRecord::Schema[7.1].define(version: 2026_09_29_000002) do
     t.string "description"
     t.float "resolution_time_threshold"
     t.index ["account_id"], name: "index_sla_policies_on_account_id"
+  end
+
+  create_table "sticker_favorites", force: :cascade do |t|
+    t.bigint "sticker_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["sticker_id", "user_id"], name: "index_sticker_favorites_on_sticker_id_and_user_id", unique: true
+    t.index ["sticker_id"], name: "index_sticker_favorites_on_sticker_id"
+    t.index ["user_id"], name: "index_sticker_favorites_on_user_id"
+  end
+
+  create_table "stickers", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "user_id"
+    t.string "name"
+    t.integer "source", default: 0, null: false
+    t.string "checksum", null: false
+    t.integer "uses_count", default: 0, null: false
+    t.datetime "last_used_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "checksum"], name: "index_stickers_on_account_id_and_checksum", unique: true
+    t.index ["account_id"], name: "index_stickers_on_account_id"
+    t.index ["user_id"], name: "index_stickers_on_user_id"
   end
 
   create_table "taggings", id: :serial, force: :cascade do |t|

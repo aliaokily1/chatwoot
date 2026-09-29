@@ -101,7 +101,21 @@ class Whatsapp::IncomingMessageBaseService
     create_message(message, source_id: message[:id])
     attach_files
     attach_location if message_type == 'location'
+    mark_sticker if message_type == 'sticker'
     @message.save!
+    collect_sticker if message_type == 'sticker'
+  end
+
+  # Elkheta: render stickers as stickers, and keep them in the account's sticker library
+  def mark_sticker
+    @message.content_attributes = (@message.content_attributes || {}).merge(is_sticker: true)
+  end
+
+  def collect_sticker
+    blob = @message.attachments.first&.file&.blob
+    Sticker.collect_from_blob!(account: @inbox.account, blob: blob, source: outgoing_echo ? :echo : :received)
+  rescue StandardError => e
+    Rails.logger.warn "[ELKHETA_STICKERS] could not collect sticker from message #{@message&.id}: #{e.message}"
   end
 
   def set_contact

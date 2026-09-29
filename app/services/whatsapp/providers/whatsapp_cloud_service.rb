@@ -142,6 +142,8 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
     attachment = message.attachments.first
     normalize_opus_content_type(attachment)
     type = %w[image audio video].include?(attachment.file_type) ? attachment.file_type : 'document'
+    # Elkheta: library stickers go out as real WhatsApp stickers (WebP)
+    type = 'sticker' if message.content_attributes&.dig(:is_sticker) && attachment.file&.content_type == 'image/webp'
     type_content = build_attachment_content(type, attachment, message)
     response = HTTParty.post(
       "#{phone_id_path('v24.0')}/messages",
