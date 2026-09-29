@@ -976,8 +976,8 @@ const menuItems = computed(() => {
         </template>
         <template v-else>
           <!-- Elkheta: bigger brand mark -->
-          <div class="grid flex-shrink-0 place-content-center h-8 w-12">
-            <Logo class="h-8 w-12 object-contain" />
+          <div class="grid flex-shrink-0 place-content-center h-6 w-9">
+            <Logo class="h-6 w-9 object-contain" />
           </div>
           <div class="flex-shrink-0 w-px h-3 bg-n-strong" />
           <SidebarAccountSwitcher

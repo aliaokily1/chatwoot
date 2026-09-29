@@ -5,13 +5,14 @@
 import { computed, nextTick, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
+import StickerTab from './StickerTab.vue';
 import emojiGroups from 'shared/components/emoji/emojisGroup.json';
 import {
   addRecentEmoji,
   getRecentEmojis,
 } from 'shared/components/emoji/pickerHelper';
 
-const emit = defineEmits(['select']);
+const emit = defineEmits(['select', 'sendSticker', 'busy']);
 
 const { t } = useI18n();
 
@@ -184,6 +185,11 @@ const onScroll = () => {
       </div>
     </template>
 
+    <StickerTab
+      v-else-if="activeBottomTab === 'sticker'"
+      @send="sticker => emit('sendSticker', sticker)"
+      @busy="value => emit('busy', value)"
+    />
     <div
       v-else
       class="flex-1 grid place-content-center gap-2 text-center text-sm text-n-slate-10 px-8"

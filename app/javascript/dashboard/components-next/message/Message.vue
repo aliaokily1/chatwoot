@@ -41,6 +41,7 @@ import LocationBubble from './bubbles/Location.vue';
 import CSATBubble from './bubbles/CSAT.vue';
 import FormBubble from './bubbles/Form.vue';
 import VoiceCallBubble from './bubbles/VoiceCall.vue';
+import StickerBubble from './bubbles/Sticker.vue'; // Elkheta
 
 import MessageError from './MessageError.vue';
 import ContextMenu from 'dashboard/modules/conversations/components/MessageContextMenu.vue';
@@ -318,6 +319,11 @@ const componentToRender = computed(() => {
 
   if (props.contentAttributes?.isUnsupported) {
     return UnsupportedBubble;
+  }
+
+  // Elkheta: WhatsApp stickers render without a bubble
+  if (props.contentAttributes?.isSticker && props.attachments?.length) {
+    return StickerBubble;
   }
 
   if (props.contentAttributes.type === 'dyte') {
