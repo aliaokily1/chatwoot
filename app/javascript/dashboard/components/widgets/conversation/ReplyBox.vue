@@ -21,6 +21,7 @@ import { REPLY_EDITOR_MODES } from 'dashboard/components/widgets/WootWriter/cons
 import WootMessageEditor from 'dashboard/components/widgets/WootWriter/Editor.vue';
 import AudioRecorder from 'dashboard/components/widgets/WootWriter/AudioRecorder.vue';
 import VoiceNoteRecorder from 'dashboard/components/widgets/WootWriter/VoiceNoteRecorder.vue';
+import StickersAPI from 'dashboard/api/stickers';
 import { AUDIO_FORMATS } from 'shared/constants/messages';
 import { BUS_EVENTS } from 'shared/constants/busEvents';
 import { CMD_AI_ASSIST } from 'dashboard/helper/commandbar/events';
@@ -145,6 +146,7 @@ export default {
       showArticleSearchPopover: false,
       hasRecordedAudio: false,
       pendingVoiceSend: false, // Elkheta: send the voice note as soon as it is attached
+      emojiPanelBusy: false, // Elkheta: keep the panel open while the sticker maker is open
       copilotAcceptedMessages: {},
     };
   },
@@ -1035,7 +1037,26 @@ export default {
         this.$refs.audioRecorderInput.playPause();
       }
     },
+    // Elkheta: send a library sticker into this conversation
+    async sendSticker(sticker) {
+      if (this.isEditorDisabled) {
+        useAlert(this.$t('CONVERSATION.STICKERS.WINDOW_CLOSED'));
+        return;
+      }
+      try {
+        await StickersAPI.sendToConversation(this.currentChat.id, sticker.id);
+        this.emojiPanelBusy = false;
+        this.hideEmojiPicker();
+        emitter.emit(BUS_EVENTS.SCROLL_TO_MESSAGE);
+      } catch (error) {
+        useAlert(
+          error?.response?.data?.error ||
+            this.$t('CONVERSATION.STICKERS.SEND_ERROR')
+        );
+      }
+    },
     hideEmojiPicker() {
+      if (this.emojiPanelBusy) return;
       if (this.showEmojiPicker) {
         this.toggleEmojiPicker();
       }
@@ -1317,6 +1338,8 @@ export default {
       v-if="showEmojiPicker"
       v-on-clickaway="hideEmojiPicker"
       @select="addIntoEditor($event.value)"
+      @send-sticker="sendSticker"
+      @busy="emojiPanelBusy = $event"
     />
     <ArticleSearchPopover
       v-if="showArticleSearchPopover && connectedPortalSlug"
