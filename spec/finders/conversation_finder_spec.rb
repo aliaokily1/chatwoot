@@ -290,5 +290,21 @@ describe ConversationFinder do
         expect(result[:conversations].length).to be 2
       end
     end
+
+    context 'with unread' do
+      let(:params) { { status: 'open', assignee_type: 'me', conversation_type: 'unread' } }
+
+      it 'returns conversations with incoming messages the agent has not seen' do
+        unread = create(:conversation, account: account, inbox: inbox, assignee: user_1, agent_last_seen_at: 1.hour.ago)
+        create(:message, account: account, inbox: inbox, conversation: unread, message_type: :incoming)
+
+        read = create(:conversation, account: account, inbox: inbox, assignee: user_1)
+        create(:message, account: account, inbox: inbox, conversation: read, message_type: :incoming)
+        read.update!(agent_last_seen_at: 1.minute.from_now)
+
+        result = conversation_finder.perform
+        expect(result[:conversations].map(&:id)).to eq([unread.id])
+      end
+    end
   end
 end

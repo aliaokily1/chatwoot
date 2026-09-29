@@ -145,8 +145,16 @@ class ConversationFinder
       @conversations = current_user.participating_conversations.where(account_id: current_account.id)
     when 'unattended'
       @conversations = @conversations.unattended
+    when 'unread'
+      @conversations = @conversations.where(unread_messages_exist)
     end
     @conversations
+  end
+
+  # Elkheta: conversations with incoming messages the agent hasn't seen yet
+  def unread_messages_exist
+    messages = Message.arel_table
+    Message.unscoped.where(Conversation.unread_messages_condition(messages, Conversation.arel_table)).arel.exists
   end
 
   def filter_by_query
