@@ -190,7 +190,8 @@ class Conversations::UnreadCounts::FilteredCounter
     conversations = Conversation.arel_table
     messages = Message.arel_table
 
-    conversations[:agent_last_seen_at].eq(nil).or(messages[:created_at].gt(conversations[:agent_last_seen_at]))
+    # Elkheta: unread = awaiting the Admin's reply
+    Conversation.awaiting_reply_condition(messages, conversations)
   end
 
   def count_relation(relation) = relation.unscope(:order).count

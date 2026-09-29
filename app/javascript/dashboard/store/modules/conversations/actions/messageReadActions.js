@@ -5,12 +5,18 @@ import mutationTypes from '../../../mutation-types';
 export default {
   markMessagesRead: async ({ commit }, data) => {
     try {
+      // Elkheta: opening a chat doesn't clear "unread" — only a reply or resolve does,
+      // so keep the server's unread_count instead of zeroing it.
       const {
-        data: { id, agent_last_seen_at: lastSeen },
+        data: { id, agent_last_seen_at: lastSeen, unread_count: unreadCount },
       } = await ConversationApi.markMessageRead(data);
       setTimeout(
         () =>
-          commit(mutationTypes.UPDATE_MESSAGE_UNREAD_COUNT, { id, lastSeen }),
+          commit(mutationTypes.UPDATE_MESSAGE_UNREAD_COUNT, {
+            id,
+            lastSeen,
+            unreadCount,
+          }),
         4000
       );
     } catch (error) {

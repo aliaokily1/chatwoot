@@ -294,16 +294,19 @@ describe ConversationFinder do
     context 'with unread' do
       let(:params) { { status: 'open', assignee_type: 'me', conversation_type: 'unread' } }
 
-      it 'returns conversations with incoming messages the agent has not seen' do
-        unread = create(:conversation, account: account, inbox: inbox, assignee: user_1, agent_last_seen_at: 1.hour.ago)
-        create(:message, account: account, inbox: inbox, conversation: unread, message_type: :incoming)
+      it 'returns conversations the Admin has not replied to yet, even after opening them' do
+        awaiting = create(:conversation, account: account, inbox: inbox, assignee: user_1)
+        create(:message, account: account, inbox: inbox, conversation: awaiting, message_type: :incoming)
+        awaiting.update!(agent_last_seen_at: 1.minute.from_now)
 
-        read = create(:conversation, account: account, inbox: inbox, assignee: user_1)
-        create(:message, account: account, inbox: inbox, conversation: read, message_type: :incoming)
-        read.update!(agent_last_seen_at: 1.minute.from_now)
+        replied = create(:conversation, account: account, inbox: inbox, assignee: user_1)
+        create(:message, account: account, inbox: inbox, conversation: replied, message_type: :incoming)
+        create(:message, account: account, inbox: inbox, conversation: replied, message_type: :outgoing, sender: user_1)
 
         result = conversation_finder.perform
-        expect(result[:conversations].map(&:id)).to eq([unread.id])
+        expect(result[:conversations].map(&:id)).to eq([awaiting.id])
+        expect(awaiting.reload.unread_incoming_messages.count).to eq(1)
+        expect(replied.reload.unread_incoming_messages.count).to eq(0)
       end
     end
   end

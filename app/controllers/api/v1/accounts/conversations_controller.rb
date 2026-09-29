@@ -126,6 +126,8 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
   def unread
     last_incoming_message = @conversation.messages.incoming.last
     last_seen_at = last_incoming_message.created_at - 1.second if last_incoming_message.present?
+    # Elkheta: unread = awaiting the Admin's reply, so marking unread re-opens that wait
+    @conversation.update!(waiting_since: last_incoming_message.created_at) if last_incoming_message.present? && @conversation.waiting_since.blank?
     update_last_seen_on_conversation(last_seen_at, true)
   end
 

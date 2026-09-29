@@ -164,7 +164,7 @@ class ConversationFinder
     @conversations
   end
 
-  # Elkheta: conversations with incoming messages the agent hasn't seen yet
+  # Elkheta: conversations with student messages the Admin hasn't replied to yet
   def unread_messages_exist
     messages = Message.arel_table
     Message.unscoped.where(Conversation.unread_messages_condition(messages, Conversation.arel_table)).arel.exists

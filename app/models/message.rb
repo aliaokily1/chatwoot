@@ -159,10 +159,15 @@ class Message < ApplicationRecord
   def conversation_push_event_data
     {
       assignee_id: conversation.assignee_id,
-      unread_count: conversation.unread_incoming_messages.count,
+      # Elkheta: a new Admin reply clears unread; its create event is sent before waiting_since is cleared
+      unread_count: new_human_reply? ? 0 : conversation.unread_incoming_messages.count,
       last_activity_at: conversation.last_activity_at.to_i,
       contact_inbox: { source_id: conversation.contact_inbox.source_id }
     }
+  end
+
+  def new_human_reply?
+    previously_new_record? && !private && human_response?
   end
 
   def merge_sender_attributes(data)

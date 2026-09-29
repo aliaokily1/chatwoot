@@ -187,8 +187,12 @@ class Conversation < ApplicationRecord
     assignee_last_seen_at.present? ? messages.created_since(assignee_last_seen_at) : messages
   end
 
+  # Elkheta: a chat stays unread until the Admin replies (or resolves it), not merely opens it.
+  # waiting_since is set by the student's first unanswered message and cleared by a reply or resolve.
   def unread_incoming_messages
-    unread_messages.where(account_id: account_id).incoming.last(10)
+    return [] if waiting_since.blank?
+
+    messages.where(account_id: account_id).incoming.where(created_at: waiting_since..).last(10)
   end
 
   def cached_label_list_array
@@ -233,10 +237,12 @@ class Conversation < ApplicationRecord
     messages[:conversation_id].eq(conversations[:id])
                               .and(messages[:account_id].eq(conversations[:account_id]))
                               .and(messages[:message_type].eq(Message.message_types[:incoming]))
-                              .and(
-                                conversations[:agent_last_seen_at].eq(nil)
-                                  .or(messages[:created_at].gt(conversations[:agent_last_seen_at]))
-                              )
+                              .and(awaiting_reply_condition(messages, conversations))
+  end
+
+  # Elkheta: incoming messages the Admin hasn't replied to yet (see #unread_incoming_messages)
+  def self.awaiting_reply_condition(messages, conversations)
+    conversations[:waiting_since].not_eq(nil).and(messages[:created_at].gteq(conversations[:waiting_since]))
   end
 
   def recent_messages

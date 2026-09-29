@@ -107,10 +107,6 @@ export default {
       MENU,
       labelSearchQuery: '',
       STATUS_TYPE: wootConstants.STATUS_TYPE,
-      readOption: {
-        label: this.$t('CONVERSATION.CARD_CONTEXT_MENU.MARK_AS_READ'),
-        icon: 'mail',
-      },
       unreadOption: {
         label: this.$t('CONVERSATION.CARD_CONTEXT_MENU.MARK_AS_UNREAD'),
         icon: 'mail-unread',
@@ -321,18 +317,17 @@ export default {
   <div
     class="p-1 rounded-md shadow-xl bg-n-alpha-3/50 backdrop-blur-[100px] outline-1 outline outline-n-weak/50"
   >
-    <template v-if="isAllowed([MENU.MARK_AS_READ, MENU.MARK_AS_UNREAD])">
+    <!-- Elkheta: unread clears only when the Admin replies or resolves, so no "Mark as read" -->
+    <template
+      v-if="
+        !hasUnreadMessages &&
+        isAllowed([MENU.MARK_AS_READ, MENU.MARK_AS_UNREAD])
+      "
+    >
       <MenuItem
-        v-if="!hasUnreadMessages"
         :option="unreadOption"
         variant="icon"
         @click.stop="$emit('markAsUnread')"
-      />
-      <MenuItem
-        v-else
-        :option="readOption"
-        variant="icon"
-        @click.stop="$emit('markAsRead')"
       />
       <hr class="m-1 rounded border-b border-n-weak dark:border-n-weak" />
     </template>

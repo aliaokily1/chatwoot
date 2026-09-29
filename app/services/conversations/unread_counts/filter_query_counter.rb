@@ -146,6 +146,7 @@ class Conversations::UnreadCounts::FilterQueryCounter < Conversations::FilterSer
     conversations = Conversation.arel_table
     messages = Message.arel_table
 
-    conversations[:agent_last_seen_at].eq(nil).or(messages[:created_at].gt(conversations[:agent_last_seen_at]))
+    # Elkheta: unread = awaiting the Admin's reply
+    Conversation.awaiting_reply_condition(messages, conversations)
   end
 end
