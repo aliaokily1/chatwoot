@@ -239,7 +239,7 @@ export const colors = {
     },
 
     black: '#000000',
-    brand: '#2781F6',
+    brand: 'rgb(var(--brand-color) / <alpha-value>)', // Elkheta: teal, set in _elkheta-theme.scss
     portal: 'var(--dynamic-portal-color)',
     'portal-soft': 'var(--dynamic-portal-color-soft)',
     'portal-faint': 'var(--dynamic-portal-color-faint)',

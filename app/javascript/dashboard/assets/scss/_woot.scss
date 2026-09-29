@@ -9,7 +9,8 @@
 // Next Colors
 @import 'next-colors';
 
-// Elkheta: WhatsApp-style chat look
+// Elkheta: app-wide theme (teal brand, neutrals, fonts) + WhatsApp-style chat look
+@import 'elkheta-theme';
 @import 'elkheta-whatsapp';
 
 // Base styles for elements
@@ -21,6 +22,7 @@
 html,
 body {
   font-family:
+    'IBM Plex Sans Arabic',
     'Inter',
     'Noto Color Emoji',
     -apple-system,

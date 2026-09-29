@@ -1,0 +1,136 @@
+// Elkheta theme — "Elkheta Teal"
+// Re-tints Chatwoot's design tokens (_next-colors.scss) for the whole dashboard:
+//   brand/primary  → WhatsApp teal (#00A884) instead of Chatwoot blue
+//   neutrals       → calm grey-green (WhatsApp Web neutrals), light + dark
+// Rule: every variable set in :root is also set in .dark (this file loads after
+// _next-colors.scss, so a :root-only override would leak into dark mode).
+
+@layer base {
+  :root {
+    --brand-color: 0 168 132;
+
+    // "blue" is Chatwoot's primary scale → teal
+    --blue-1: 248 253 251;
+    --blue-2: 240 250 246;
+    --blue-3: 225 245 238;
+    --blue-4: 207 239 229;
+    --blue-5: 186 231 218;
+    --blue-6: 160 219 203;
+    --blue-7: 124 202 181;
+    --blue-8: 68 181 152;
+    --blue-9: 0 168 132;
+    --blue-10: 0 150 118;
+    --blue-11: 0 128 105;
+    --blue-12: 8 66 55;
+
+    // neutrals
+    --slate-1: 252 253 253;
+    --slate-2: 247 248 250;
+    --slate-3: 240 242 245;
+    --slate-4: 233 237 239;
+    --slate-5: 225 230 233;
+    --slate-6: 215 221 225;
+    --slate-7: 200 208 213;
+    --slate-8: 176 186 193;
+    --slate-9: 134 150 160;
+    --slate-10: 115 131 141;
+    --slate-11: 84 101 111;
+    --slate-12: 17 27 33;
+
+    --background-color: 240 242 245;
+    --surface-1: 255 255 255;
+    --surface-2: 255 255 255;
+    --surface-active: 245 246 247;
+    --border-weak: 233 237 239;
+    --border-strong: 222 227 230;
+    --border-blue: 0, 168, 132, 0.45;
+    --border-blue-strong: 0 110 90;
+    --solid-blue: 217 253 211;
+    --solid-blue-2: 244 251 249;
+    --text-blue: 6 55 46;
+    --label-background: 240 242 245;
+  }
+
+  .dark {
+    --brand-color: 0 168 132;
+
+    --blue-1: 5 19 17;
+    --blue-2: 7 27 24;
+    --blue-3: 4 44 37;
+    --blue-4: 0 57 47;
+    --blue-5: 0 71 59;
+    --blue-6: 0 87 72;
+    --blue-7: 0 107 88;
+    --blue-8: 0 132 107;
+    --blue-9: 0 168 132;
+    --blue-10: 20 185 148;
+    --blue-11: 64 207 170;
+    --blue-12: 196 240 228;
+
+    --slate-1: 11 20 26;
+    --slate-2: 17 27 33;
+    --slate-3: 24 35 42;
+    --slate-4: 32 44 51;
+    --slate-5: 38 52 60;
+    --slate-6: 45 60 69;
+    --slate-7: 57 74 84;
+    --slate-8: 78 96 107;
+    --slate-9: 104 121 131;
+    --slate-10: 134 150 160;
+    --slate-11: 174 186 193;
+    --slate-12: 233 237 239;
+
+    --background-color: 12 19 24;
+    --surface-1: 17 27 33;
+    --surface-2: 17 27 33;
+    --surface-active: 42 57 66;
+    --border-weak: 34 45 52;
+    --border-strong: 48 62 70;
+    --border-blue: 0, 168, 132, 0.5;
+    --border-blue-strong: 150 230 210;
+    --solid-blue: 0 92 75;
+    --solid-blue-2: 20 32 38;
+    --text-blue: 200 240 230;
+    --label-background: 32 44 51;
+
+    // dark-only surfaces (cards, menus, inputs) in WhatsApp dark tones
+    --solid-1: 32 44 51;
+    --solid-2: 38 52 60;
+    --solid-3: 42 57 66;
+    --solid-active: 42 57 66;
+    --card-color: 32 44 51;
+    --button-color: 42 57 66;
+    --alpha-1: 32, 44, 51, 0.8;
+    --alpha-3: 32, 44, 51, 0.97;
+  }
+}
+
+// Typography: IBM Plex Sans Arabic reads well in both Arabic and English;
+// Readex Pro gives page titles a little character.
+.font-interDisplay,
+h1,
+h2,
+h3 {
+  font-family:
+    'Readex Pro',
+    'IBM Plex Sans Arabic',
+    system-ui,
+    sans-serif;
+  letter-spacing: -0.01em;
+}
+
+// Calm, consistent motion on interactive rows and buttons
+.conversation,
+.chip,
+.menu,
+button {
+  transition-property: background-color, color, border-color, box-shadow, opacity;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
+}
+
+// Softer scrollbars that match the palette
+* {
+  scrollbar-color: rgb(var(--slate-6)) transparent;
+  scrollbar-width: thin;
+}
