@@ -6,6 +6,8 @@ import { useAlert } from 'dashboard/composables';
 import { useI18n } from 'vue-i18n';
 import { emitter } from 'shared/helpers/mitt';
 import EmailTranscriptModal from './EmailTranscriptModal.vue';
+import ChatSummaryModal from './ChatSummaryModal.vue';
+import ChatToolsAPI from 'dashboard/api/chatTools';
 import ResolveAction from '../../buttons/ResolveAction.vue';
 import ButtonV4 from 'dashboard/components-next/button/Button.vue';
 import DropdownMenu from 'dashboard/components-next/dropdown-menu/DropdownMenu.vue';
@@ -22,11 +24,26 @@ const { t } = useI18n();
 
 const [showEmailActionsModal, toggleEmailModal] = useToggle(false);
 const [showActionsDropdown, toggleDropdown] = useToggle(false);
+const [showSummaryModal, toggleSummaryModal] = useToggle(false);
 
 const currentChat = computed(() => store.getters.getSelectedChat);
 
 const actionMenuItems = computed(() => {
-  const items = [];
+  // Elkheta: AI summary and WhatsApp-style chat export first
+  const items = [
+    {
+      icon: 'i-ph-sparkle',
+      label: t('CONVERSATION.CHAT_TOOLS.SUMMARIZE'),
+      action: 'summarize',
+      value: 'summarize',
+    },
+    {
+      icon: 'i-ph-export',
+      label: t('CONVERSATION.CHAT_TOOLS.EXPORT'),
+      action: 'export',
+      value: 'export',
+    },
+  ];
 
   if (!currentChat.value.muted) {
     items.push({
@@ -54,8 +71,26 @@ const actionMenuItems = computed(() => {
   return items;
 });
 
+// Elkheta: download the whole chat as a WhatsApp-style .txt file
+const exportChat = async () => {
+  try {
+    const { data } = await ChatToolsAPI.exportChat(currentChat.value.id);
+    const name = currentChat.value.meta?.sender?.name || currentChat.value.id;
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(data);
+    link.download = `Elkheta chat - ${name}.txt`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  } catch {
+    useAlert(t('CONVERSATION.CHAT_TOOLS.EXPORT_ERROR'));
+  }
+};
+
 const handleActionClick = ({ action }) => {
   toggleDropdown(false);
+
+  if (action === 'summarize') toggleSummaryModal(true);
+  if (action === 'export') exportChat();
 
   if (action === 'mute') {
     store.dispatch('muteConversation', currentChat.value.id);
@@ -116,6 +151,14 @@ onUnmounted(() => {
         @action="handleActionClick"
       />
     </div>
+    <Teleport to="body">
+      <ChatSummaryModal
+        v-if="showSummaryModal"
+        :conversation-id="currentChat.id"
+        :contact-name="currentChat.meta?.sender?.name"
+        @close="toggleSummaryModal(false)"
+      />
+    </Teleport>
     <EmailTranscriptModal
       v-if="showEmailActionsModal"
       :show="showEmailActionsModal"

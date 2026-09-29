@@ -160,6 +160,9 @@ Rails.application.routes.draw do
               delete 'messages/:message_id/pin', to: 'message_actions#unpin', as: :unpin_message
               post 'messages/:message_id/star', to: 'message_actions#star', as: :star_message
               delete 'messages/:message_id/star', to: 'message_actions#unstar', as: :unstar_message
+              # Elkheta: chat ⋮ menu tools
+              get 'chat_export', to: 'chat_tools#export', as: :chat_export
+              post 'chat_summary', to: 'chat_tools#summary', as: :chat_summary
               resources :messages, only: [:index, :create, :destroy, :update] do
                 member do
                   post :translate

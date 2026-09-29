@@ -82,6 +82,27 @@
       "SUCCESS": "Message forwarded to {count} chat(s)",
       "ERROR": "Could not forward the message."
     },
+    "CHAT_TOOLS": {
+      "SUMMARIZE": "Summarize with AI",
+      "EXPORT": "Export chat",
+      "EXPORT_ERROR": "Could not export the chat.",
+      "SUMMARY_TITLE": "Chat summary (AI)",
+      "READING": "Reading the chat…",
+      "STUDENT_SAID": "What the student said",
+      "ADMIN_SAID": "What the Admin said",
+      "AGREED": "What was agreed",
+      "FOCUS_NEXT": "Focus on next",
+      "NOTHING": "Nothing here.",
+      "EMPTY": "This chat has no messages to summarize yet.",
+      "SUMMARY_ERROR": "Could not summarize the chat. Try again.",
+      "NOT_CONFIGURED": "AI summary isn't set up yet. The Manager needs to add the Claude API key.",
+      "RETRY": "Try again",
+      "COPY": "Copy",
+      "COPIED": "Summary copied",
+      "SAVE_NOTE": "Save as note",
+      "NOTE_SAVED": "Summary saved as a note in the chat",
+      "NOTE_ERROR": "Could not save the note."
+    },
     "MESSAGE_ACTIONS": {
       "DOWNLOAD": "Download",
       "PIN": "Pin",
