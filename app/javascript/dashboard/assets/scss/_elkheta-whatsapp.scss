@@ -46,6 +46,17 @@ $wa-doodle-dark: "<svg xmlns='http://www.w3.org/2000/svg' width='200' height='20
   background-image: url("data:image/svg+xml,#{$wa-doodle-dark}");
 }
 
+// Mixed Arabic/English text: every paragraph takes the direction of its own
+// first strong character (like WhatsApp), in bubbles, quotes, previews and the editor.
+.prose-bubble p,
+.prose-bubble li,
+.ProseMirror p,
+.ProseMirror li,
+.wa-auto-dir {
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+
 // Bubble tail on the first message of a group (like WhatsApp).
 .wa-bubble {
   position: relative;

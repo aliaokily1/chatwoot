@@ -211,6 +211,7 @@ const replyToSender = computed(() => {
       </div>
       <div
         v-dompurify-html="replyToPreview"
+        dir="auto"
         class="prose prose-bubble line-clamp-2 opacity-80"
       />
     </div>

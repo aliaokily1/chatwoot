@@ -90,7 +90,7 @@ export default {
       />
       {{ $t('CHAT_LIST.ATTACHMENTS.image.CONTENT') }}
     </span>
-    <span v-else-if="message.content">
+    <span v-else-if="message.content" dir="auto">
       {{ parsedLastMessage }}
     </span>
     <span v-else-if="message.attachments">

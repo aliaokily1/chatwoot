@@ -24,5 +24,10 @@ const formattedContent = computed(() => {
 </script>
 
 <template>
-  <span v-dompurify-html="formattedContent" class="prose prose-bubble" />
+  <!-- Elkheta: dir="auto" so Arabic/English text flows in its own direction -->
+  <span
+    v-dompurify-html="formattedContent"
+    dir="auto"
+    class="prose prose-bubble"
+  />
 </template>
