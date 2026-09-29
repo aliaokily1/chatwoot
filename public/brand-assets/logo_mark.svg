@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="20 77 360 360" fill="none">
-  <!-- Elkheta Class mark: slanted rounded bars (yellow + one charcoal), on a square canvas -->
-  <g transform="translate(24 146)" stroke-linecap="round" stroke-width="38">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 18 352 186" fill="none">
+  <!-- Elkheta Class mark, tightly framed (sidebar) -->
+  <g stroke-linecap="round" stroke-width="38">
     <line x1="84" y1="40" x2="78" y2="54" stroke="#F7D633"/>
     <line x1="58" y1="100" x2="50" y2="118" stroke="#F7D633"/>
     <line x1="34" y1="156" x2="22" y2="182" stroke="#F7D633"/>
