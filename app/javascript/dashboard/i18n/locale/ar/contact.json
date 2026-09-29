@@ -291,6 +291,10 @@
     }
   },
   "CONTACTS_LAYOUT": {
+    "ADMIN_FILTER": {
+      "LABEL": "المشرفة",
+      "ALL": "كل المشرفات"
+    },
     "HEADER": {
       "TITLE": "جهات الاتصال",
       "SEARCH_TITLE": "Search contacts",

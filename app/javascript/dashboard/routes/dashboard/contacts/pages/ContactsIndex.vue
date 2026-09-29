@@ -6,6 +6,7 @@ import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { useAlert } from 'dashboard/composables';
 import { debounce } from '@chatwoot/utils';
 import { useUISettings } from 'dashboard/composables/useUISettings';
+import { useAdmin } from 'dashboard/composables/useAdmin';
 import filterQueryGenerator from 'dashboard/helper/filterQueryGenerator';
 
 import ContactsListLayout from 'dashboard/components-next/Contacts/ContactsListLayout.vue';
@@ -32,6 +33,11 @@ const customViewsUiFlags = useMapGetter('customViews/getUIFlags');
 const segments = useMapGetter('customViews/getContactCustomViews');
 const appliedFilters = useMapGetter('contacts/getAppliedContactFilters');
 const meta = useMapGetter('contacts/getMeta');
+
+// Elkheta: Supervisors/Managers can narrow Contacts to one Admin's number
+const { isAdmin } = useAdmin();
+const inboxes = useMapGetter('inboxes/getInboxes');
+const activeInboxId = computed(() => route.query?.inbox || '');
 
 const searchQuery = computed(() => route.query?.search);
 const searchValue = ref(searchQuery.value || '');
@@ -194,6 +200,7 @@ const getCommonFetchParams = (page = 1) => ({
   page,
   sortAttr: buildSortAttr(),
   label: activeLabel.value,
+  inboxId: activeInboxId.value || undefined,
 });
 
 const fetchContacts = async (page = 1, options = {}) => {
@@ -235,6 +242,7 @@ const fetchActiveContacts = async (page = 1, options = {}) => {
   await store.dispatch('contacts/active', {
     page,
     sortAttr: buildSortAttr(),
+    inboxId: activeInboxId.value || undefined,
   });
   updatePageParam(page);
 };
@@ -324,6 +332,14 @@ const fetchContactsBasedOnContext = async (page, options = {}) => {
   await fetchContacts(page, {
     clearSelection: shouldClearSelection,
   });
+};
+
+const onInboxFilterChange = async event => {
+  const query = { ...route.query, page: '1' };
+  if (event.target.value) query.inbox = event.target.value;
+  else delete query.inbox;
+  await router.replace({ query });
+  fetchContactsBasedOnContext(1);
 };
 
 const onPageChange = page =>
@@ -520,6 +536,32 @@ onMounted(async () => {
       @clear-filters="fetchContacts"
       @load-more="loadMoreSearchResults"
     >
+      <div
+        v-if="isAdmin && inboxes.length > 1"
+        class="flex items-center gap-2 pt-4"
+      >
+        <label
+          for="contacts-admin-filter"
+          class="text-sm text-n-slate-11 whitespace-nowrap"
+        >
+          {{ t('CONTACTS_LAYOUT.ADMIN_FILTER.LABEL') }}
+        </label>
+        <select
+          id="contacts-admin-filter"
+          :value="activeInboxId"
+          class="!mb-0 !h-8 !w-auto !py-0 text-sm rounded-lg"
+          @change="onInboxFilterChange"
+        >
+          <option value="">{{ t('CONTACTS_LAYOUT.ADMIN_FILTER.ALL') }}</option>
+          <option
+            v-for="inbox in inboxes"
+            :key="inbox.id"
+            :value="String(inbox.id)"
+          >
+            {{ inbox.name }}
+          </option>
+        </select>
+      </div>
       <div
         v-if="isFetchingList && !(isSearchView && hasContacts)"
         class="flex items-center justify-center py-10 text-n-slate-11"

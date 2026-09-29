@@ -70,6 +70,9 @@ class Contact < ApplicationRecord
 
   enum contact_type: { visitor: 0, lead: 1, customer: 2 }
 
+  # Elkheta: contacts linked to any of these inboxes (each Admin has her own number / inbox)
+  scope :in_inboxes, ->(inbox_ids) { where(id: ContactInbox.where(inbox_id: inbox_ids).select(:contact_id)) }
+
   scope :order_on_last_activity_at, lambda { |direction|
     order(
       Arel::Nodes::SqlLiteral.new(

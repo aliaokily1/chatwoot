@@ -28,7 +28,7 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
       'name ILIKE :search OR email ILIKE :search OR phone_number ILIKE :search OR contacts.identifier LIKE :search',
       search: "%#{params[:q].strip}%"
     )
-    @contacts = fetch_contacts_with_has_more(contacts)
+    @contacts = fetch_contacts_with_has_more(searchable_contacts(contacts))
   end
 
   def import
@@ -53,7 +53,7 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
   def active
     contacts = Current.account.contacts.where(id: ::OnlineStatusTracker
                   .get_available_contact_ids(Current.account.id))
-    @contacts = fetch_contacts(contacts)
+    @contacts = fetch_contacts(visible_contacts(contacts))
     @contacts_count = @contacts.total_count
   end
 
@@ -61,8 +61,8 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
 
   def filter
     result = ::Contacts::FilterService.new(Current.account, Current.user, params.permit!).perform
-    contacts = result[:contacts]
-    @contacts_count = result[:count]
+    contacts = visible_contacts(result[:contacts])
+    @contacts_count = contacts.equal?(result[:contacts]) ? result[:count] : contacts.count
     @contacts = fetch_contacts(contacts)
   rescue CustomExceptions::CustomFilter::InvalidAttribute,
          CustomExceptions::CustomFilter::InvalidOperator,
@@ -120,10 +120,29 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
   def resolved_contacts
     return @resolved_contacts if @resolved_contacts
 
-    @resolved_contacts = Current.account.contacts.resolved_contacts(use_crm_v2: Current.account.feature_enabled?('crm_v2'))
+    @resolved_contacts = visible_contacts(Current.account.contacts.resolved_contacts(use_crm_v2: Current.account.feature_enabled?('crm_v2')))
 
     @resolved_contacts = @resolved_contacts.tagged_with(params[:labels], any: true) if params[:labels].present?
     @resolved_contacts
+  end
+
+  # Elkheta: each Admin sees only the contacts of her own number(s). Supervisors/Managers (administrators)
+  # see everyone, and can narrow the list to one Admin's number with ?inbox_id=
+  def visible_contacts(contacts)
+    return contacts if Current.account_user.administrator? && params[:inbox_id].blank?
+
+    inboxes = Current.user.assigned_inboxes
+    inboxes = inboxes.where(id: params[:inbox_id]) if params[:inbox_id].present?
+    contacts.in_inboxes(inboxes.select(:id))
+  end
+
+  # Elkheta: an Admin may still find any contact by its full phone number, to start a chat with them
+  def searchable_contacts(contacts)
+    phone = params[:q].to_s.gsub(/\D/, '')
+    scoped = visible_contacts(contacts)
+    return scoped if phone.length < 10 || Current.account_user.administrator?
+
+    scoped.or(contacts.where(phone_number: "+#{phone}"))
   end
 
   def set_current_page
@@ -160,14 +179,22 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
   end
 
   def build_contact_inbox
-    return if params[:inbox_id].blank?
+    inbox = contact_inbox_target
+    return if inbox.blank?
 
-    inbox = Current.account.inboxes.find(params[:inbox_id])
     ContactInboxBuilder.new(
       contact: @contact,
       inbox: inbox,
       source_id: params[:source_id]
     ).perform
+  end
+
+  # Elkheta: a contact an Admin adds goes into her own inbox, so it stays in her Contacts
+  def contact_inbox_target
+    return Current.account.inboxes.find(params[:inbox_id]) if params[:inbox_id].present?
+    return if Current.account_user.administrator? || @contact.phone_number.blank?
+
+    Current.user.assigned_inboxes.first
   end
 
   def permitted_params
@@ -201,7 +228,7 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
   end
 
   def fetch_contact
-    contact_scope = Current.account.contacts
+    contact_scope = visible_contacts(Current.account.contacts)
     contact_scope = contact_scope.includes(contact_inboxes: [:inbox]) if @include_contact_inboxes
     @contact = contact_scope.find(params[:id])
   end

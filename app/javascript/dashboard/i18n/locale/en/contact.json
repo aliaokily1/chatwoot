@@ -292,6 +292,10 @@
   },
 
   "CONTACTS_LAYOUT": {
+    "ADMIN_FILTER": {
+      "LABEL": "Admin",
+      "ALL": "All Admins"
+    },
     "HEADER": {
       "TITLE": "Contacts",
       "SEARCH_TITLE": "Search contacts",

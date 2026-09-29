@@ -166,6 +166,8 @@ class SearchService
       "name ILIKE :search OR email ILIKE :search OR phone_number
       ILIKE :search OR identifier ILIKE :search", search: "%#{search_query}%"
     )
+    # Elkheta: Admins only find the contacts of their own number(s)
+    contacts_query = contacts_query.in_inboxes(accessable_inbox_ids) unless @current_user.administrator?
 
     contacts_query = apply_time_filter(contacts_query, 'last_activity_at') if current_account.feature_enabled?('advanced_search')
 
