@@ -73,6 +73,12 @@
     "FEEDBACK_TITLE": "الملاحظات",
     "REPLY_MESSAGE_NOT_FOUND": "الرسالة غير متوفرة",
     "REPLY_YOU": "أنت",
+    "VOICE_NOTE": {
+      "DELETE": "حذف التسجيل",
+      "LISTEN": "استماع",
+      "PAUSE": "إيقاف مؤقت",
+      "RESUME": "استكمال التسجيل"
+    },
     "EMOJI_PANEL": {
       "SEARCH": "ابحث عن إيموجي",
       "RECENT": "المستخدمة مؤخراً",

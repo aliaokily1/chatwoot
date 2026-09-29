@@ -20,6 +20,7 @@ import QuotedEmailPreview from './QuotedEmailPreview.vue';
 import { REPLY_EDITOR_MODES } from 'dashboard/components/widgets/WootWriter/constants';
 import WootMessageEditor from 'dashboard/components/widgets/WootWriter/Editor.vue';
 import AudioRecorder from 'dashboard/components/widgets/WootWriter/AudioRecorder.vue';
+import VoiceNoteRecorder from 'dashboard/components/widgets/WootWriter/VoiceNoteRecorder.vue';
 import { AUDIO_FORMATS } from 'shared/constants/messages';
 import { BUS_EVENTS } from 'shared/constants/busEvents';
 import { CMD_AI_ASSIST } from 'dashboard/helper/commandbar/events';
@@ -76,6 +77,7 @@ export default {
     ReplyBoxBanner,
     EmojiIconPicker,
     WhatsAppEmojiPanel,
+    VoiceNoteRecorder,
     MessageSignatureMissingAlert,
     ReplyBottomPanel,
     ReplyEmailHead,
@@ -142,6 +144,7 @@ export default {
       newConversationModalActive: false,
       showArticleSearchPopover: false,
       hasRecordedAudio: false,
+      pendingVoiceSend: false, // Elkheta: send the voice note as soon as it is attached
       copilotAcceptedMessages: {},
     };
   },
@@ -239,6 +242,8 @@ export default {
       if (this.isEditorDisabled) return true;
       if (this.isATwitterInbox) return true;
       if (this.hasAttachments || this.hasRecordedAudio) return false;
+      // Elkheta: like WhatsApp, send works while recording (it stops, then sends)
+      if (this.isRecordingAudio && !this.pendingVoiceSend) return false;
 
       return (
         this.isMessageEmpty ||
@@ -462,6 +467,19 @@ export default {
     },
   },
   watch: {
+    // Elkheta: once the finished voice note is attached, send it automatically
+    attachedFiles: {
+      deep: true,
+      handler(files) {
+        if (
+          this.pendingVoiceSend &&
+          files.some(file => file?.isVoiceMessage)
+        ) {
+          this.pendingVoiceSend = false;
+          this.$nextTick(() => this.onSendReply());
+        }
+      },
+    },
     currentChat(conversation, oldConversation) {
       const { can_reply: canReply } = conversation;
       if (oldConversation && oldConversation.id !== conversation.id) {
@@ -875,6 +893,14 @@ export default {
           });
     },
     async onSendReply() {
+      // Elkheta: pressing send while recording finishes the voice note, then sends it
+      if (this.isRecordingAudio && !this.hasRecordedAudio) {
+        if (this.pendingVoiceSend) return;
+        this.pendingVoiceSend = true;
+        const file = await this.$refs.audioRecorderInput?.finish?.();
+        if (!file) this.pendingVoiceSend = false;
+        return;
+      }
       const undefinedVariables = getUndefinedVariablesInMessage({
         message: this.message,
         variables: this.messageVariables,
@@ -1319,15 +1345,15 @@ export default {
           v-model:bcc-emails="bccEmails"
           v-model:to-emails="toEmails"
         />
-        <AudioRecorder
+        <!-- Elkheta: WhatsApp-style recorder (pause · listen · resume · delete · send) -->
+        <VoiceNoteRecorder
           v-if="showAudioRecorderEditor"
           ref="audioRecorderInput"
           :audio-record-format="audioRecordFormat"
           @recorder-progress-changed="onRecordProgressChanged"
           @finish-record="onFinishRecorder"
           @record-error="onRecordError"
-          @play="recordingAudioState = 'playing'"
-          @pause="recordingAudioState = 'paused'"
+          @cancel="toggleAudioRecorder"
         />
         <CopilotEditorSection
           v-if="copilot.isActive.value && !showAudioRecorderEditor"

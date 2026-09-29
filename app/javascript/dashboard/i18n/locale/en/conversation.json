@@ -71,6 +71,12 @@
     "FEEDBACK_TITLE": "Feedback",
     "REPLY_MESSAGE_NOT_FOUND": "Message not available",
     "REPLY_YOU": "You",
+    "VOICE_NOTE": {
+      "DELETE": "Delete recording",
+      "LISTEN": "Listen",
+      "PAUSE": "Pause",
+      "RESUME": "Continue recording"
+    },
     "EMOJI_PANEL": {
       "SEARCH": "Search emoji",
       "RECENT": "Recent",

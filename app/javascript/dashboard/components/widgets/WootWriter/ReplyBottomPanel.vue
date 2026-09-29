@@ -296,7 +296,10 @@ export default {
     class="flex justify-between p-3"
     :class="[wrapClass, { 'wa-bottom-panel': waCompact }]"
   >
-    <div class="left-wrap">
+    <div
+      class="left-wrap"
+      :class="{ '!hidden': waCompact && isRecordingAudio }"
+    >
       <NextButton
         v-if="!isEditorDisabled"
         v-tooltip.top-end="$t('CONVERSATION.REPLYBOX.TIP_EMOJI_ICON')"
@@ -332,7 +335,7 @@ export default {
         />
       </FileUpload>
       <NextButton
-        v-if="showAudioRecorderButton && (!waCompact || isRecordingAudio)"
+        v-if="showAudioRecorderButton && !waCompact"
         v-tooltip.top-end="$t('CONVERSATION.REPLYBOX.TIP_AUDIORECORDER_ICON')"
         :icon="!isRecordingAudio ? 'i-ph-microphone' : 'i-ph-microphone-slash'"
         slate
@@ -341,7 +344,7 @@ export default {
         @click="toggleAudioRecorder"
       />
       <NextButton
-        v-if="showAudioPlayStopButton"
+        v-if="showAudioPlayStopButton && !waCompact"
         :icon="audioRecorderPlayStopIcon"
         slate
         faded
