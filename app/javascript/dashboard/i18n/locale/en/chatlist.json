@@ -25,7 +25,7 @@
       "ADD_TO_LIST": "Add to list"
     },
     "MENTION_HEADING": "Mentions",
-    "UNATTENDED_HEADING": "Awaiting reply",
+    "UNATTENDED_HEADING": "Pending reply",
     "SEARCH": {
       "INPUT": "Search for People, Chats, Saved Replies .."
     },
