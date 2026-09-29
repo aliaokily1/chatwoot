@@ -84,8 +84,21 @@ class ConversationFinder
     filter_by_status unless params[:q]
     filter_by_team
     filter_by_labels
+    filter_by_conversation_list
     filter_by_query
     filter_by_source_id
+  end
+
+  # Elkheta: only conversations in one of the current agent's personal lists
+  def filter_by_conversation_list
+    return unless params[:list_id]
+
+    list = ConversationList.find_by(id: params[:list_id], account_id: current_account.id, user_id: current_user.id)
+    @conversations = if list
+                       @conversations.where(id: list.conversation_list_items.select(:conversation_id))
+                     else
+                       @conversations.none
+                     end
   end
 
   def set_inboxes

@@ -274,6 +274,13 @@ Rails.application.routes.draw do
 
           resources :custom_attribute_definitions, only: [:index, :show, :create, :update, :destroy]
           resources :custom_filters, only: [:index, :show, :create, :update, :destroy]
+          # Elkheta: personal chat lists (Favourites + custom)
+          resources :conversation_lists, only: [:index, :create, :update, :destroy] do
+            member do
+              post 'conversations/:conversation_id', action: :add_conversation, as: :add_conversation
+              delete 'conversations/:conversation_id', action: :remove_conversation, as: :remove_conversation
+            end
+          end
           resource :branded_email_layout, only: [:show, :update]
           resources :inboxes, only: [:index, :show, :create, :update, :destroy] do
             get :assignable_agents, on: :member
