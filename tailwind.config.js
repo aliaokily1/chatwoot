@@ -16,6 +16,8 @@ const defaultSansFonts = [
   '"Helvetica Neue"',
   'Tahoma',
   'Arial',
+  // Elkheta: complete colour emoji font (loaded in vueapp.html.erb)
+  '"Noto Color Emoji"',
   'sans-serif !important',
 ];
 
