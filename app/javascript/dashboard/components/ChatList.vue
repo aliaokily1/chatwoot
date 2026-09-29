@@ -90,7 +90,8 @@ const {
 const activeListId = computed(() =>
   typeof activeChip.value === 'number' ? activeChip.value : undefined
 );
-const activeStatus = ref(wootConstants.STATUS_TYPE.OPEN);
+// Elkheta: like WhatsApp, show every chat by default (resolved chats don't disappear)
+const activeStatus = ref(wootConstants.STATUS_TYPE.ALL);
 const activeSortBy = ref(wootConstants.SORT_BY_TYPE.LAST_ACTIVITY_AT_DESC);
 const showAdvancedFilters = ref(false);
 // chatsOnView is to store the chats that are currently visible on the screen,
@@ -404,7 +405,7 @@ const uniqueInboxes = computed(() => {
 function setFiltersFromUISettings() {
   const { conversations_filter_by: filterBy = {} } = uiSettings.value;
   const { status, order_by: orderBy } = filterBy;
-  activeStatus.value = status || wootConstants.STATUS_TYPE.OPEN;
+  activeStatus.value = status || wootConstants.STATUS_TYPE.ALL;
   activeSortBy.value = Object.values(wootConstants.SORT_BY_TYPE).includes(
     orderBy
   )
