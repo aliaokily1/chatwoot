@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 
 import MessageMeta from '../MessageMeta.vue';
+import Icon from 'next/icon/Icon.vue';
 import CaptainGenerationDetails from '../CaptainGenerationDetails.vue';
 
 import { emitter } from 'shared/helpers/mitt';
@@ -28,6 +29,7 @@ const {
   shouldGroupWithNext,
   groupWithPrevious,
   currentUserId,
+  contentAttributes,
   id,
   sender,
   senderType,
@@ -194,6 +196,14 @@ const replyToSender = computed(() => {
       },
     ]"
   >
+    <!-- Elkheta: WhatsApp "Forwarded" label -->
+    <div
+      v-if="contentAttributes?.forwarded"
+      class="flex items-center gap-1 mb-0.5 text-xs italic opacity-70"
+    >
+      <Icon icon="i-ph-share-fat" class="size-3.5 rtl:-scale-x-100" />
+      {{ t('CONVERSATION.FORWARD.LABEL') }}
+    </div>
     <div
       v-if="inReplyTo"
       class="px-2 py-1.5 -mx-1 mb-1.5 rounded-md cursor-pointer bg-n-wa-quote/5 dark:bg-n-wa-quote/20 border-s-4"

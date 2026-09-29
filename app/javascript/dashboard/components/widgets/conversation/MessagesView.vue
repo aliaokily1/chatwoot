@@ -12,6 +12,7 @@ import ConversationLabelSuggestion from './conversation/LabelSuggestion.vue';
 import Banner from 'dashboard/components/ui/Banner.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import ResizableEditorWrapper from './ResizableEditorWrapper.vue';
+import PinnedMessagesBar from './PinnedMessagesBar.vue'; // Elkheta
 
 // stores and apis
 import { mapGetters } from 'vuex';
@@ -45,6 +46,7 @@ export default {
     ConversationLabelSuggestion,
     Spinner,
     ResizableEditorWrapper,
+    PinnedMessagesBar,
   },
   mixins: [inboxMixin],
   setup() {
@@ -453,6 +455,7 @@ export default {
     class="flex flex-col justify-between flex-grow h-full min-w-0 m-0"
   >
     <div ref="topBannerRef">
+      <PinnedMessagesBar :chat="currentChat" />
       <Banner
         v-if="!currentChat.can_reply"
         color-scheme="alert"

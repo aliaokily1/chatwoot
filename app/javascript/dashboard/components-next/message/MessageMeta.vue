@@ -31,6 +31,8 @@ const {
   sourceId,
   messageType,
   contentAttributes,
+  isStarred, // Elkheta
+  isPinned, // Elkheta
 } = useMessageContext();
 
 const fullTime = computed(() =>
@@ -141,6 +143,8 @@ const statusToShow = computed(() => {
 
 <template>
   <div class="text-xs flex items-center gap-1.5">
+    <Icon v-if="isPinned" icon="i-ph-push-pin-fill" class="size-3" />
+    <Icon v-if="isStarred" icon="i-ph-star-fill" class="size-3 text-amber-500" />
     <div class="inline">
       <time class="inline" :title="fullTime">{{ readableTime }}</time>
     </div>

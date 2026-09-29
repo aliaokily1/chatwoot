@@ -45,6 +45,10 @@ import StickerBubble from './bubbles/Sticker.vue'; // Elkheta
 import MessageReactions from './MessageReactions.vue'; // Elkheta
 import MessageHoverActions from './MessageHoverActions.vue'; // Elkheta
 import MessageActionsAPI from 'dashboard/api/messageActions'; // Elkheta
+import ForwardMessageModal from './ForwardMessageModal.vue'; // Elkheta
+import { useStarredMessages } from 'dashboard/composables/useStarredMessages'; // Elkheta
+import { useStore } from 'vuex'; // Elkheta
+import { downloadFile } from '@chatwoot/utils'; // Elkheta
 
 import MessageError from './MessageError.vue';
 import ContextMenu from 'dashboard/modules/conversations/components/MessageContextMenu.vue';
@@ -413,6 +417,17 @@ const contextMenuEnabledOptions = computed(() => {
       !isMessageDeleted.value,
     // Elkheta
     react: !props.private && !isFailedOrProcessing && !isMessageDeleted.value,
+    forward:
+      (hasText || hasAttachments) &&
+      !props.private &&
+      !isFailedOrProcessing &&
+      !isMessageDeleted.value,
+    pin: !isFailedOrProcessing && !isMessageDeleted.value,
+    star: !isFailedOrProcessing && !isMessageDeleted.value,
+    download: hasAttachments && !isMessageDeleted.value,
+    addToNote: hasText && !isMessageDeleted.value,
+    isPinned: isPinned.value,
+    isStarred: isStarred.value,
   };
 });
 
@@ -484,6 +499,78 @@ async function reactToMessage(emoji) {
 function openReactionBar() {
   closeContextMenu();
   hoverActionsRef.value?.openBar();
+}
+
+// Elkheta: forward, pin (CRM only), star (personal), download, add to contact note
+const store = useStore();
+const showForwardModal = ref(false);
+const { ensureLoaded: ensureStarsLoaded, isStarred: isStarredFn, toggleStar } =
+  useStarredMessages();
+onMounted(() => ensureStarsLoaded(props.conversationId));
+const isStarred = computed(() => isStarredFn(props.conversationId, props.id));
+
+const selectedChat = useMapGetter('getSelectedChat');
+const pinnedIds = computed(() =>
+  (selectedChat.value?.additional_attributes?.pinned_message_ids || []).map(Number)
+);
+const isPinned = computed(() => pinnedIds.value.includes(props.id));
+
+function openForward() {
+  closeContextMenu();
+  showForwardModal.value = true;
+}
+
+async function togglePin() {
+  closeContextMenu();
+  try {
+    await (isPinned.value
+      ? MessageActionsAPI.unpin(props.conversationId, props.id)
+      : MessageActionsAPI.pin(props.conversationId, props.id));
+  } catch {
+    useAlert(t('CONVERSATION.MESSAGE_ACTIONS.PIN_ERROR'));
+  }
+}
+
+async function toggleStarMessage() {
+  closeContextMenu();
+  try {
+    const starred = await toggleStar(props.conversationId, props.id);
+    useAlert(
+      t(starred ? 'CONVERSATION.MESSAGE_ACTIONS.STARRED' : 'CONVERSATION.MESSAGE_ACTIONS.UNSTARRED')
+    );
+  } catch {
+    useAlert(t('CONVERSATION.MESSAGE_ACTIONS.STAR_ERROR'));
+  }
+}
+
+async function downloadFirstAttachment() {
+  closeContextMenu();
+  const attachment = props.attachments?.[0];
+  if (!attachment) return;
+  try {
+    await downloadFile({
+      url: attachment.dataUrl,
+      type: attachment.fileType,
+      extension: attachment.extension,
+    });
+  } catch {
+    useAlert(t('GALLERY_VIEW.ERROR_DOWNLOADING'));
+  }
+}
+
+async function addTextToNote() {
+  closeContextMenu();
+  const contactId = selectedChat.value?.meta?.sender?.id;
+  if (!contactId || !props.content) return;
+  try {
+    await store.dispatch('contactNotes/create', {
+      contactId,
+      content: props.content,
+    });
+    useAlert(t('CONVERSATION.MESSAGE_ACTIONS.NOTE_ADDED'));
+  } catch {
+    useAlert(t('CONVERSATION.MESSAGE_ACTIONS.NOTE_ERROR'));
+  }
 }
 
 function handleReplyTo() {
@@ -564,6 +651,8 @@ provideMessageContext({
   orientation,
   isBotOrAgentMessage,
   shouldGroupWithNext,
+  isStarred, // Elkheta: ⭐ next to the time
+  isPinned, // Elkheta
 });
 </script>
 
@@ -664,7 +753,20 @@ provideMessageContext({
         @close="closeContextMenu"
         @reply-to="handleReplyTo"
         @react="openReactionBar"
+        @forward="openForward"
+        @toggle-pin="togglePin"
+        @toggle-star="toggleStarMessage"
+        @download="downloadFirstAttachment"
+        @add-to-note="addTextToNote"
       />
+      <Teleport to="body">
+        <ForwardMessageModal
+          v-if="showForwardModal"
+          :conversation-id="conversationId"
+          :message-id="id"
+          @close="showForwardModal = false"
+        />
+      </Teleport>
     </div>
   </div>
 </template>

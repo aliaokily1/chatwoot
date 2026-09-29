@@ -47,7 +47,17 @@ export default {
       default: false,
     },
   },
-  emits: ['open', 'close', 'replyTo', 'react'],
+  emits: [
+    'open',
+    'close',
+    'replyTo',
+    'react',
+    'forward',
+    'togglePin',
+    'toggleStar',
+    'download',
+    'addToNote',
+  ],
   setup() {
     const { getPlainText } = useMessageFormatter();
 
@@ -217,16 +227,66 @@ export default {
           variant="icon"
           @click.stop="handleReplyTo"
         />
-        <!-- Elkheta: open the WhatsApp-style reaction bar -->
+        <!-- Elkheta: WhatsApp-style message options -->
         <MenuItem
           v-if="enabledOptions['react']"
           :option="{
-            icon: 'emoji',
+            icon: 'i-ph-smiley',
             label: $t('CONVERSATION.REACTIONS.REACT'),
           }"
           variant="icon"
           @click.stop="$emit('react')"
         />
+        <MenuItem
+          v-if="enabledOptions['download']"
+          :option="{
+            icon: 'i-ph-download-simple',
+            label: $t('CONVERSATION.MESSAGE_ACTIONS.DOWNLOAD'),
+          }"
+          variant="icon"
+          @click.stop="$emit('download')"
+        />
+        <MenuItem
+          v-if="enabledOptions['forward']"
+          :option="{
+            icon: 'i-ph-share-fat',
+            label: $t('CONVERSATION.FORWARD.ACTION'),
+          }"
+          variant="icon"
+          @click.stop="$emit('forward')"
+        />
+        <MenuItem
+          v-if="enabledOptions['pin']"
+          :option="{
+            icon: enabledOptions['isPinned'] ? 'i-ph-push-pin-slash' : 'i-ph-push-pin',
+            label: enabledOptions['isPinned']
+              ? $t('CONVERSATION.MESSAGE_ACTIONS.UNPIN')
+              : $t('CONVERSATION.MESSAGE_ACTIONS.PIN'),
+          }"
+          variant="icon"
+          @click.stop="$emit('togglePin')"
+        />
+        <MenuItem
+          v-if="enabledOptions['star']"
+          :option="{
+            icon: enabledOptions['isStarred'] ? 'i-ph-star-fill' : 'i-ph-star',
+            label: enabledOptions['isStarred']
+              ? $t('CONVERSATION.MESSAGE_ACTIONS.UNSTAR')
+              : $t('CONVERSATION.MESSAGE_ACTIONS.STAR'),
+          }"
+          variant="icon"
+          @click.stop="$emit('toggleStar')"
+        />
+        <MenuItem
+          v-if="enabledOptions['addToNote']"
+          :option="{
+            icon: 'i-ph-note-pencil',
+            label: $t('CONVERSATION.MESSAGE_ACTIONS.ADD_TO_NOTE'),
+          }"
+          variant="icon"
+          @click.stop="$emit('addToNote')"
+        />
+        <hr />
         <MenuItem
           v-if="enabledOptions['copy']"
           :option="{
@@ -279,7 +339,7 @@ export default {
           v-if="enabledOptions['delete']"
           :option="{
             icon: 'delete',
-            label: $t('CONVERSATION.CONTEXT_MENU.DELETE'),
+            label: $t('CONVERSATION.MESSAGE_ACTIONS.DELETE_IN_CRM'),
           }"
           variant="icon"
           @click.stop="openDeleteModal"

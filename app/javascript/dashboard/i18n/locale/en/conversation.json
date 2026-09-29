@@ -71,6 +71,33 @@
     "FEEDBACK_TITLE": "Feedback",
     "REPLY_MESSAGE_NOT_FOUND": "Message not available",
     "REPLY_YOU": "You",
+    "FORWARD": {
+      "ACTION": "Forward",
+      "LABEL": "Forwarded",
+      "TITLE": "Forward message to",
+      "SEARCH": "Search chats",
+      "NO_CHATS": "No chats found",
+      "SELECTED": "{count} of {max} selected",
+      "SEND": "Forward",
+      "SUCCESS": "Message forwarded to {count} chat(s)",
+      "ERROR": "Could not forward the message."
+    },
+    "MESSAGE_ACTIONS": {
+      "DOWNLOAD": "Download",
+      "PIN": "Pin",
+      "UNPIN": "Unpin",
+      "PINNED_MESSAGE": "Pinned message",
+      "PIN_ERROR": "Could not update the pin.",
+      "STAR": "Star",
+      "UNSTAR": "Unstar",
+      "STARRED": "Message starred",
+      "UNSTARRED": "Star removed",
+      "STAR_ERROR": "Could not update the star.",
+      "ADD_TO_NOTE": "Add text to note",
+      "NOTE_ADDED": "Added to the contact notes",
+      "NOTE_ERROR": "Could not add the note.",
+      "DELETE_IN_CRM": "Delete (CRM only)"
+    },
     "REACTIONS": {
       "REACT": "React",
       "MORE": "More options",
