@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { fromUnixTime, isToday } from 'date-fns';
 import { messageTimestamp } from 'shared/helpers/timeHelper';
+import { useExactTimestamp } from 'shared/composables/useExactTimestamp';
 
 import MessageStatus from './MessageStatus.vue';
 import Icon from 'next/icon/Icon.vue';
@@ -9,6 +10,8 @@ import { useInbox } from 'dashboard/composables/useInbox';
 import { useMessageContext } from './provider.js';
 
 import { MESSAGE_STATUS, MESSAGE_TYPES } from './constants';
+
+const exactTimestamp = useExactTimestamp();
 
 const {
   isAFacebookInbox,
@@ -45,6 +48,7 @@ const readableTime = computed(() =>
     ? messageTimestamp(createdAt.value, 'h:mm a')
     : fullTime.value
 );
+const exactTime = computed(() => exactTimestamp(createdAt.value));
 
 const showStatusIndicator = computed(() => {
   if (isPrivate.value) return false;
@@ -146,7 +150,15 @@ const statusToShow = computed(() => {
     <Icon v-if="isPinned" icon="i-ph-push-pin-fill" class="size-3" />
     <Icon v-if="isStarred" icon="i-ph-star-fill" class="size-3 text-amber-500" />
     <div class="inline">
-      <time class="inline" :title="fullTime">{{ readableTime }}</time>
+      <time
+        v-tooltip.top="{
+          content: exactTime,
+          delay: { show: 500, hide: 0 },
+        }"
+        class="inline"
+      >
+        {{ readableTime }}
+      </time>
     </div>
     <Icon v-if="isPrivate" icon="i-lucide-lock-keyhole" class="size-3" />
     <MessageStatus v-if="showStatusIndicator" :status="statusToShow" />

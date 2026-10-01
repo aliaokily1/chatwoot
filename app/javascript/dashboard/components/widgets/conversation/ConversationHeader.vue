@@ -137,7 +137,7 @@ const copyConversationId = async () => {
       <BackButton
         v-if="showBackButton"
         :back-url="backButtonUrl"
-        class="ltr:mr-2 rtl:ml-2"
+        class="me-2"
       />
       <button
         type="button"
@@ -153,9 +153,7 @@ const copyConversationId = async () => {
           hide-offline-status
         />
       </button>
-      <div
-        class="flex flex-col items-start min-w-0 ml-2 overflow-hidden rtl:ml-0 rtl:mr-2"
-      >
+      <div class="flex flex-col items-start min-w-0 ms-2 overflow-hidden">
         <div class="flex flex-row items-center max-w-full gap-1 p-0 m-0">
           <button
             type="button"

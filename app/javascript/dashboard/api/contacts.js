@@ -2,19 +2,14 @@
 import ApiClient from './ApiClient';
 
 // Elkheta: inboxId narrows the list to one Admin's number (Supervisors/Managers)
-export const buildContactParams = (page, sortAttr, label, search, inboxId) => {
-  let params = `include_contact_inboxes=false&page=${page}&sort=${sortAttr}`;
-  if (inboxId) {
-    params = `${params}&inbox_id=${inboxId}`;
-  }
-  if (search) {
-    params = `${params}&q=${search}`;
-  }
-  if (label) {
-    params = `${params}&labels[]=${label}`;
-  }
-  return params;
-};
+export const buildContactParams = (page, sortAttr, label, search, inboxId) => ({
+  include_contact_inboxes: false,
+  page,
+  sort: sortAttr,
+  ...(search ? { q: search } : {}),
+  ...(label ? { labels: [label] } : {}),
+  ...(inboxId ? { inbox_id: inboxId } : {}),
+});
 
 class ContactAPI extends ApiClient {
   constructor() {
@@ -22,14 +17,9 @@ class ContactAPI extends ApiClient {
   }
 
   get(page, sortAttr = 'name', label = '', inboxId = null) {
-    let requestURL = `${this.url}?${buildContactParams(
-      page,
-      sortAttr,
-      label,
-      '',
-      inboxId
-    )}`;
-    return axios.get(requestURL);
+    return axios.get(this.url, {
+      params: buildContactParams(page, sortAttr, label, '', inboxId),
+    });
   }
 
   show(id) {
@@ -40,8 +30,10 @@ class ContactAPI extends ApiClient {
     return axios.patch(`${this.url}/${id}?include_contact_inboxes=false`, data);
   }
 
-  getConversations(contactId, { inboxId } = {}) {
-    const params = inboxId ? { inbox_id: inboxId } : {};
+  getConversations(contactId, { inboxId, conversationId } = {}) {
+    const params = {};
+    if (inboxId) params.inbox_id = inboxId;
+    if (conversationId) params.conversation_id = conversationId;
     return axios.get(`${this.url}/${contactId}/conversations`, { params });
   }
 
@@ -71,25 +63,29 @@ class ContactAPI extends ApiClient {
   }
 
   search(search = '', page = 1, sortAttr = 'name', label = '', options = {}) {
-    let requestURL = `${this.url}/search?${buildContactParams(
-      page,
-      sortAttr,
-      label,
-      search,
-      options.inboxId
-    )}`;
-    return axios.get(requestURL, { signal: options.signal });
+    return axios.get(`${this.url}/search`, {
+      params: buildContactParams(
+        page,
+        sortAttr,
+        label,
+        search,
+        options.inboxId
+      ),
+      signal: options.signal,
+    });
   }
 
   active(page = 1, sortAttr = 'name', inboxId = null) {
-    let requestURL = `${this.url}/active?${buildContactParams(page, sortAttr, '', '', inboxId)}`;
-    return axios.get(requestURL);
+    return axios.get(`${this.url}/active`, {
+      params: buildContactParams(page, sortAttr, '', '', inboxId),
+    });
   }
 
   // eslint-disable-next-line default-param-last
   filter(page = 1, sortAttr = 'name', queryPayload, inboxId = null) {
-    let requestURL = `${this.url}/filter?${buildContactParams(page, sortAttr, '', '', inboxId)}`;
-    return axios.post(requestURL, queryPayload);
+    return axios.post(`${this.url}/filter`, queryPayload, {
+      params: buildContactParams(page, sortAttr, '', '', inboxId),
+    });
   }
 
   importContacts(file) {
