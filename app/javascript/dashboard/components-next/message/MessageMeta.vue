@@ -14,6 +14,7 @@ import { MESSAGE_STATUS, MESSAGE_TYPES } from './constants';
 const exactTimestamp = useExactTimestamp();
 
 const {
+  inbox, // Elkheta
   isAFacebookInbox,
   isALineChannel,
   isAPIInbox,
@@ -140,6 +141,10 @@ const statusToShow = computed(() => {
   if (isRead.value) return MESSAGE_STATUS.READ;
   if (isDelivered.value) return MESSAGE_STATUS.DELIVERED;
   if (isSent.value) return MESSAGE_STATUS.SENT;
+  // Elkheta: when this screen hasn't loaded the inbox yet, trust the server's status
+  // instead of showing a misleading "Sending" clock
+  const confirmed = [MESSAGE_STATUS.SENT, MESSAGE_STATUS.DELIVERED, MESSAGE_STATUS.READ];
+  if (!inbox.value?.id && confirmed.includes(status.value)) return status.value;
 
   return MESSAGE_STATUS.PROGRESS;
 });

@@ -8,6 +8,7 @@ import { useMapGetter } from 'dashboard/composables/store';
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import { useSidebarKeyboardShortcuts } from './useSidebarKeyboardShortcuts';
+import { useInboxesSelfHeal } from 'dashboard/composables/useInboxesSelfHeal'; // Elkheta
 import { vOnClickOutside } from '@vueuse/components';
 import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 import { useWindowSize, useEventListener } from '@vueuse/core';
@@ -245,6 +246,8 @@ const conversationCustomViews = useMapGetter(
 const getSidebarSectionSort = useMapGetter(
   'sidebarSortPreferences/getSectionSort'
 );
+
+useInboxesSelfHeal(); // Elkheta: reload the numbers list if it failed to load
 
 onMounted(() => {
   store.dispatch('labels/get');
