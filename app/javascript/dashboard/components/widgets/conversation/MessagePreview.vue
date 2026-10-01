@@ -111,6 +111,14 @@ export default {
     <span v-else-if="message.content" dir="auto">
       {{ parsedLastMessage }}
     </span>
+    <!-- Elkheta: stickers read "Sticker" in the list, like WhatsApp -->
+    <span v-else-if="message.content_attributes?.is_sticker">
+      <Icon
+        icon="i-ph-sticker"
+        class="size-4 -mt-0.5 align-middle inline-block text-n-slate-11"
+      />
+      {{ $t('CONVERSATION.STICKERS.PREVIEW') }}
+    </span>
     <span v-else-if="message.attachments">
       <fluent-icon
         v-if="attachmentIcon && showMessageType"

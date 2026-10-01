@@ -156,6 +156,7 @@
       "ERROR": "Could not send the reaction."
     },
     "STICKERS": {
+      "PREVIEW": "Sticker",
       "CREATE": "Create",
       "CREATE_TITLE": "Create a sticker",
       "PICK_IMAGE": "Choose an image",
