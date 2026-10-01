@@ -7,11 +7,14 @@ import { emitter } from 'shared/helpers/mitt';
 import { BUS_EVENTS } from 'shared/constants/busEvents';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import MessageActionsAPI from 'dashboard/api/messageActions';
+import { useStore } from 'vuex';
+import { applyPinnedIds } from 'dashboard/helper/elkhetaPins';
 
 const props = defineProps({
   chat: { type: Object, required: true },
 });
 const { t } = useI18n();
+const store = useStore();
 
 const index = ref(0);
 const pinnedIds = computed(() =>
@@ -41,7 +44,11 @@ const jump = () => {
 const unpin = async () => {
   if (!current.value) return;
   try {
-    await MessageActionsAPI.unpin(props.chat.id, current.value.id);
+    const { data } = await MessageActionsAPI.unpin(
+      props.chat.id,
+      current.value.id
+    );
+    applyPinnedIds(store, props.chat.id, data?.pinned_message_ids);
   } catch {
     useAlert(t('CONVERSATION.MESSAGE_ACTIONS.PIN_ERROR'));
   }

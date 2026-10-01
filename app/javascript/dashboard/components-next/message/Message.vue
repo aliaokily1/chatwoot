@@ -51,6 +51,7 @@ import ForwardMessageModal from './ForwardMessageModal.vue'; // Elkheta
 import { useStarredMessages } from 'dashboard/composables/useStarredMessages'; // Elkheta
 import { useStore } from 'vuex'; // Elkheta
 import { downloadFile } from '@chatwoot/utils'; // Elkheta
+import { applyPinnedIds } from 'dashboard/helper/elkhetaPins'; // Elkheta
 
 import MessageError from './MessageError.vue';
 import ContextMenu from 'dashboard/modules/conversations/components/MessageContextMenu.vue';
@@ -539,9 +540,10 @@ function openForward() {
 async function togglePin() {
   closeContextMenu();
   try {
-    await (isPinned.value
+    const { data } = await (isPinned.value
       ? MessageActionsAPI.unpin(props.conversationId, props.id)
       : MessageActionsAPI.pin(props.conversationId, props.id));
+    applyPinnedIds(store, props.conversationId, data?.pinned_message_ids);
   } catch {
     useAlert(t('CONVERSATION.MESSAGE_ACTIONS.PIN_ERROR'));
   }
