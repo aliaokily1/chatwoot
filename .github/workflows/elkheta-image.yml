@@ -6,6 +6,8 @@ on:
   push:
     branches:
       - elkheta
+      # Upstream updates are built and tested before they reach elkheta (see UPSTREAM-UPDATE-GUIDE.md)
+      - 'upstream-update/**'
   workflow_dispatch:
 
 permissions:
@@ -34,6 +36,10 @@ jobs:
         run: |
           echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/chatwoot" >> "$GITHUB_ENV"
           echo "SHORT_SHA=${GITHUB_SHA::7}" >> "$GITHUB_ENV"
+          # Only the elkheta branch moves the "latest" tag; update branches get their sha tag only
+          if [ "$GITHUB_REF_NAME" = "elkheta" ]; then
+            echo "LATEST_TAG=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/chatwoot:elkheta-latest" >> "$GITHUB_ENV"
+          fi
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -54,7 +60,7 @@ jobs:
           push: true
           tags: |
             ${{ env.IMAGE }}:elkheta-${{ env.SHORT_SHA }}
-            ${{ env.IMAGE }}:elkheta-latest
+            ${{ env.LATEST_TAG }}
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.description=Chatwoot CE with Elkheta changes
