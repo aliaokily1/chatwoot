@@ -363,7 +363,7 @@ class Message < ApplicationRecord
 
   def set_waiting_since_on_incoming_message
     # Set waiting_since when customer sends a message (if currently blank)
-    conversation.update(waiting_since: created_at) if incoming? && conversation.waiting_since.blank?
+    conversation.update(waiting_since: created_at) if incoming? && real_traffic? && conversation.waiting_since.blank?
   end
 
   def human_response?
@@ -375,6 +375,13 @@ class Message < ApplicationRecord
       content_attributes['automation_rule_id'].blank? &&
       additional_attributes['campaign_id'].blank? &&
       (sender.is_a?(User) || content_attributes['external_echo'].present?)
+  end
+
+  # Elkheta: activity messages (labels, assignment, status) and WhatsApp "unsupported" placeholders
+  # (mostly failed coexistence syncs of what the Admin sent from her phone) are not conversation
+  # traffic. They must not move the chat date or mark the chat as awaiting the Admin's reply.
+  def real_traffic?
+    !activity? && !is_unsupported
   end
 
   def bot_response?
@@ -453,6 +460,8 @@ class Message < ApplicationRecord
   end
 
   def set_conversation_activity
+    return unless real_traffic?
+
     # rubocop:disable Rails/SkipsModelValidations
     conversation.update_columns(last_activity_at: created_at, updated_at: Time.current)
     # rubocop:enable Rails/SkipsModelValidations

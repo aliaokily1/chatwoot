@@ -1,6 +1,7 @@
 import { describe } from 'vitest';
 import types from '../../../mutation-types';
 import { mutations } from '../../conversations';
+import { MESSAGE_TYPE } from 'shared/constants/messages';
 
 vi.mock('shared/helpers/mitt', () => ({
   emitter: {
@@ -170,6 +171,41 @@ describe('#mutations', () => {
         },
       ]);
       expect(emitter.emit).toHaveBeenCalledWith('SCROLL_TO_MESSAGE');
+    });
+
+    // Elkheta: see Message#real_traffic?
+    it('does not move the chat time for activity or unsupported messages', () => {
+      const state = {
+        allConversations: [{ id: 1, messages: [], timestamp: 1602256198 }],
+        selectedChatId: -1,
+      };
+      mutations[types.ADD_MESSAGE](state, {
+        conversation_id: 1,
+        message_type: MESSAGE_TYPE.ACTIVITY,
+        content: 'Conversation was marked resolved',
+        created_at: 1602256999,
+      });
+      mutations[types.ADD_MESSAGE](state, {
+        conversation_id: 1,
+        message_type: MESSAGE_TYPE.INCOMING,
+        content_attributes: { is_unsupported: true },
+        created_at: 1602257999,
+      });
+      expect(state.allConversations[0].timestamp).toEqual(1602256198);
+    });
+
+    it('moves the chat time for a real incoming message', () => {
+      const state = {
+        allConversations: [{ id: 1, messages: [], timestamp: 1602256198 }],
+        selectedChatId: -1,
+      };
+      mutations[types.ADD_MESSAGE](state, {
+        conversation_id: 1,
+        message_type: MESSAGE_TYPE.INCOMING,
+        content: 'Hello',
+        created_at: 1602257999,
+      });
+      expect(state.allConversations[0].timestamp).toEqual(1602257999);
     });
 
     it('update message if it exist in the store', () => {

@@ -280,6 +280,35 @@ RSpec.describe Message do
     end
   end
 
+  # Elkheta: activity messages and WhatsApp "unsupported" placeholders are not conversation traffic
+  describe '#real_traffic?' do
+    let(:conversation) { create(:conversation, waiting_since: nil).reload }
+
+    it 'does not move the chat date for an activity message' do
+      last_activity_at = conversation.last_activity_at
+
+      create(:message, conversation: conversation, message_type: :activity, content: 'Conversation was resolved')
+
+      expect(conversation.reload.last_activity_at).to eq last_activity_at
+    end
+
+    it 'does not move the chat date or await a reply for an unsupported placeholder' do
+      last_activity_at = conversation.last_activity_at
+
+      create(:message, conversation: conversation, message_type: :incoming, content_attributes: { is_unsupported: true })
+
+      expect(conversation.reload.last_activity_at).to eq last_activity_at
+      expect(conversation.waiting_since).to be_nil
+    end
+
+    it 'moves the chat date and awaits a reply for a real incoming message' do
+      message = create(:message, conversation: conversation, message_type: :incoming, content: 'Hello')
+
+      expect(conversation.reload.last_activity_at).to eq message.reload.created_at
+      expect(conversation.waiting_since).to eq message.created_at
+    end
+  end
+
   describe '#waiting since' do
     let(:conversation) { create(:conversation) }
     let(:agent) { create(:user, account: conversation.account) }

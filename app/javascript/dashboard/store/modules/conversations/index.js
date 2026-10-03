@@ -2,7 +2,7 @@ import types from '../../mutation-types';
 import getters, { getSelectedChatConversation } from './getters';
 import actions from './actions';
 import { findPendingMessageIndex } from './helpers';
-import { MESSAGE_STATUS } from 'shared/constants/messages';
+import { MESSAGE_STATUS, MESSAGE_TYPE } from 'shared/constants/messages';
 import wootConstants from 'dashboard/constants/globals';
 import { BUS_EVENTS } from '../../../../shared/constants/busEvents';
 import { emitter } from 'shared/helpers/mitt';
@@ -255,7 +255,14 @@ export const mutations = {
       chat.messages[pendingMessageIndex] = message;
     } else {
       chat.messages.push(message);
-      chat.timestamp = message.created_at;
+      // Elkheta: activity messages and WhatsApp "unsupported" placeholders are not
+      // conversation traffic, so they must not move the chat time (see Message#real_traffic?)
+      if (
+        message.message_type !== MESSAGE_TYPE.ACTIVITY &&
+        !message.content_attributes?.is_unsupported
+      ) {
+        chat.timestamp = message.created_at;
+      }
       const { conversation: { unread_count: unreadCount = 0 } = {} } = message;
       chat.unread_count = unreadCount;
       if (selectedChatId === conversationId) {
